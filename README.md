@@ -11,7 +11,7 @@ Compiling the Clojurescript with figwheel in a terminal:
 
 `clj -m figwheel.main -b dev -r`
 
-from the root of the project
+from the root of the project then visit `http://localhost:9501/` (actually Figwheel will probably open it automatically)
 
 `dev.cljs.edn` contains the Clojurescript compilation config
 
@@ -21,10 +21,7 @@ and `deps.edn` contains the project's dependencies
 
 This project can be imported into IntelliJ with:
 
-`File > New > Project from existing sources` and select "deps" for the project type
-
-then visit `http://localhost:9501/`
-
+`File > New > Project from existing sources` and select "deps" for the external model type
 
 
 ## License
