@@ -112,7 +112,7 @@
       :display               :grid
       :grid-area             :content
       :grid-template-columns "40% 60%"
-      :grid-column-gap       (em 2)
+      :grid-column-gap       (em 1)
       :grid-auto-rows        :auto
       :grid-row-gap          (em 2.5)
       :background            (rgb 70 70 70)
