@@ -31,6 +31,7 @@
       :numbers
             {
              :x            7
+             :circles      3
              :colour-index 0
              }
       :ranges

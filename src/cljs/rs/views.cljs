@@ -125,6 +125,15 @@
      ".number" {
                  :font-size (em 4)
                }
+     ".a-circle"
+          {
+            :fill (rgb 20 255 100)
+            :stroke :none
+          }
+     ".circles"
+          {
+             :background :black
+          }
     ]])
 
 (defn css-grid-view [rule]
@@ -145,6 +154,14 @@
         ])
       a-map)))
 
+(defn circles-view [circles]
+  [:svg.thing.circles {:viewBox "-1 -1 2 2" :height 64 :width "100%"}
+    (into [:g]
+      (map
+        (fn [i]
+          [:circle.a-circle {:cx i :cy 0 :r (/ 0.9 circles)}])
+        (range -1 1 (/ 2 circles))))])
+
 (defn root-view
   "
    Returns a view component for
@@ -156,7 +173,7 @@
   "
   ([] (root-view @actions/app-state))
   ([{text :text {range-x :x} :ranges
-       {x :x colour-index :colour-index :as numbers} :numbers
+       {x :x colour-index :colour-index circles :circles :as numbers} :numbers
         colours :colours
         {grid-css :grid} :css}]
      [:div.root
@@ -170,6 +187,8 @@
            [:div.thing.number x]
          [input-number-view {:min 0 :max (dec (count colours)) :step 1 :path [:numbers :colour-index] :value colour-index}]
            [:div.thing.sample]
+         [input-number-view {:min 3 :max 17 :step 1 :path [:numbers :circles] :value circles}]
+           [circles-view circles]
          [:div.input
           [input-em-view {:min 0.3 :max 8 :step 0.3 :path [:css :grid :grid-column-gap] :value (:grid-column-gap grid-css)}]
           [input-em-view {:min 0.3 :max 4 :step 0.3 :path [:css :grid :grid-row-gap] :value (:grid-row-gap grid-css)}]]
