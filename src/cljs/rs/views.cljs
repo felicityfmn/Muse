@@ -24,34 +24,38 @@
     [:style {:type "text/css" :scoped true}
       (css flags (map vec (partition 2 rules)))]))
 
-(defn css-root-view []
-  [css-view {:vendors ["webkit" "moz"] :auto-prefix #{:column-width :user-select :appearance}}
-     [
-       "body" {
-                :margin  0
-                :padding 0
-                :background  (rgb 50 50 50)
-                :font-family "Gill Sans, Helvetica, Verdana, Sans Serif"
-                :font-size   (em 1)
-                :font-weight :normal
-                :cursor      :default
-                }
-       ".main" {
-             :background            (rgb 70 70 70)
-             :color                 (rgb 255 250 210)
-             :font-family           "monospace"
-             :width                 "100%"
-             :height                "100vh"
-             :display               :grid
-             :grid-template-columns "32px auto 32px"
-             :grid-template-rows    :auto
-             :grid-column-gap       (em 1)
-             :grid-row-gap          (em 0.5)
-             :grid-template-areas   (strs '[[. . .]
-                                            [. content .]
-                                            [. . .]])
+(defn css-root-view
+  "
+    Static general CSS for the whole page
+  "
+  ([]
+    [css-view {:vendors ["webkit" "moz"] :auto-prefix #{:column-width :user-select :appearance}}
+    [
+     "body" {
+             :margin      0
+             :padding     0
+             :background  (rgb 50 50 50)
+             :font-family "Gill Sans, Helvetica, Verdana, Sans Serif"
+             :font-size   (em 1)
+             :font-weight :normal
+             :cursor      :default
              }
-     ]])
+     ".main" {
+              :background            (rgb 70 70 70)
+              :color                 (rgb 255 250 210)
+              :font-family           "monospace"
+              :width                 "100%"
+              :height                "100vh"
+              :display               :grid
+              :grid-template-columns "32px auto 32px"
+              :grid-template-rows    :auto
+              :grid-column-gap       (em 1)
+              :grid-row-gap          (em 0.5)
+              :grid-template-areas   (strs '[[.    .    .]
+                                             [. content .]
+                                             [.    .    .]])
+              }
+     ]]))
 
 (defn input-text-view [text]
   [:input.input.text-input
@@ -60,10 +64,15 @@
       :value text
       :on-change
        (fn [e]
+         ; we have received an event object, e, which is a Javascript object
+         ; we need to get its value and send it to the actions/update! function
+         ; to change the app-state, using the function actions/change-text to do it
          (actions/update! actions/change-text {:text (oget e [:target :value])}))
       }])
 
-(defn input-number-view [{v :value min :min max :max step :step path :path}]
+(defn input-number-view
+  "Returns an input view that converts to/from a number"
+  [{v :value min :min max :max step :step path :path}]
   [:input.input
    {
     :type  :range
@@ -73,11 +82,14 @@
     :value v
     :on-change
            (fn [e]
+             ; in this case we're going to send the given path to change too
              (actions/update! actions/change-thing
                {:path path :value (js/parseFloat (oget e [:target :value]))}))
     }])
 
-(defn input-em-view [{v :value min :min max :max step :step path :path}]
+(defn input-em-view
+  "Returns an input view that converts to/from em units"
+  [{v :value min :min max :max step :step path :path}]
   [:input.input
    {
     :type  :range
@@ -91,58 +103,64 @@
                {:path path :value (em (js/parseFloat (oget e [:target :value])))}))
     }])
 
-(defn css-things-view [{colour-index :colour-index} colours]
-  [css-view
+(defn css-things-view
+  "Some dynamic CSS rules for the table-of-things view"
+  ([{colour-index :colour-index} colours]
+   [css-view
     [
      ".things"
-        {
-          :display :grid
-          :grid-area :content
-          :grid-template-columns "40% 60%"
-          :grid-column-gap       (em 2)
-          :grid-auto-rows        (px 100)
-          :grid-row-gap          (em 1)
-          :background (rgb 70 70 70)
-        }
-      ".thing" {:align-self :start}
-      ".input" {:align-self :start}
-      ".text-input"
-        {
-          :font-size (em 1)
-          :color    (rgb 255 252 250)
-          :background (rgb 90 90 90)
-          :padding (em 1)
-          :border :none
-        }
-      ".sample" {
-                 :background (colours colour-index)
-                 :width (px 64)
-                 :height (px 64)
-                 :border-width (px 1)
-                 :border-color (rgb 200 200 200)
-                 :border-style :solid
-               }
+     {
+      :display               :grid
+      :grid-area             :content
+      :grid-template-columns "40% 60%"
+      :grid-column-gap       (em 2)
+      :grid-auto-rows        (px 100)
+      :grid-row-gap          (em 1)
+      :background            (rgb 70 70 70)
+      }
+     ".thing" {:align-self :start}
+     ".input" {:align-self :start}
+     ".text-input"
+     {
+      :font-size  (em 1)
+      :color      (rgb 255 252 250)
+      :background (rgb 90 90 90)
+      :padding    (em 1)
+      :border     :none
+      }
+     ".sample" {
+                :background   (colours colour-index)
+                :width        (px 64)
+                :height       (px 64)
+                :border-width (px 1)
+                :border-color (rgb 200 200 200)
+                :border-style :solid
+                }
      ".number" {
-                 :font-size (em 4)
-               }
+                :font-size (em 4)
+                }
      ".a-circle"
-          {
-            :fill (rgb 20 255 100)
-            :stroke :none
-          }
+     {
+      :fill   (rgb 20 255 100)
+      :stroke :none
+      }
      ".circles"
-          {
-             :background :black
-          }
-    ]])
+     {
+      :background :black
+      }
+     ]]))
 
-(defn css-grid-view [rule]
+(defn css-grid-view
+  "A tiny dynamic CSS rule just for the little table"
+  [rule]
   [css-view
     [
       ".my-columns" rule
     ]])
 
-(defn table-view [a-map]
+(defn table-view
+  "Returns a table to display some CSS rules"
+  [a-map]
   (into [:div.my-columns]
     (mapcat
       (fn [[k v]]
@@ -154,7 +172,9 @@
         ])
       a-map)))
 
-(defn circles-view [circles]
+(defn circles-view
+  "Returns a view of some circles"
+  [circles]
   [:svg.thing.circles {:viewBox "-1 -1 2 2" :height 64 :width "100%"}
     (into [:g]
       (map

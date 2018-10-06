@@ -5,6 +5,24 @@ A minimalistic sketch of Reagent code
 This shows a basic single page application which
 has a few HTML components and some dynamic CSS components
 
+This project demonstrates how to make a basic Reagent UI using the very latest techniques (late 2018) and with the fewest dependencies
+
+### What it does
+
+It displays a table of things that change the application's state:
+
+* a text box that changes some text
+* a range slider that changes a number
+* another range slider that chooses a colour
+* some circles
+* a fancy table with (get this) dynamic CSS layout
+
+CSS is handled completely by Garden, both statically and dynamically in a few different ways.
+
+The application is represented by 1 Reagent atom which contains everything and event handlers (in rs.views) that delegate to pure functions (in rs.actions) to change the state as a function of their events
+
+
+
 ## Usage
 
 Compiling the Clojurescript with figwheel in a terminal:

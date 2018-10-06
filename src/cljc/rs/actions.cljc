@@ -6,6 +6,8 @@
     Each function that changes the app state
     takes the current state app-state and a message map,
     and returns a new state
+
+    This namespace can be tested in a normal Clojure REPL too
   "
   (:require
     [garden.core :as gc]
@@ -16,7 +18,9 @@
     [clojure.string :as string]))
 
 ; this is the entire state of the application
-; note
+; note the use of a Reagent atom when this runs
+; as Clojurescript or a normal Clojure atom if this
+; is running in a Clojure REPL
 (defonce app-state
   #?(:cljs (ra/atom {}) :clj (atom {})))
 
@@ -54,8 +58,18 @@
       (-> state
         add-colours)))
 
-(defn update! [f message]
-  (swap! app-state (fn [s] (f s message))))
+(defn update!
+  "
+   This updates the application state using
+   the given function a-function and the given message
+
+   See the following functions for examples of
+   functions that can change the state
+
+   They're called from event handlers in rs.views
+  "
+  [a-function message]
+  (swap! app-state (fn [current-state] (a-function current-state message))))
 
 (defn change-text
   ([state {text :text :as message}]
