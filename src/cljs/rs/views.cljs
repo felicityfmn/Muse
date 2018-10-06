@@ -43,14 +43,13 @@
      ".main" {
               :background            (rgb 70 70 70)
               :color                 (rgb 255 250 210)
-              :font-family           "monospace"
               :width                 "100%"
-              :height                "100vh"
+              :height                "100%"
               :display               :grid
-              :grid-template-columns "32px auto 32px"
+              :grid-template-columns "0.1fr 1fr 0.1fr"
               :grid-template-rows    :auto
               :grid-column-gap       (em 1)
-              :grid-row-gap          (em 0.5)
+              :grid-row-gap          (em 2)
               :grid-template-areas   (strs '[[.    .    .]
                                              [. content .]
                                              [.    .    .]])
@@ -114,11 +113,11 @@
       :grid-area             :content
       :grid-template-columns "40% 60%"
       :grid-column-gap       (em 2)
-      :grid-auto-rows        (px 100)
-      :grid-row-gap          (em 1)
+      :grid-auto-rows        :auto
+      :grid-row-gap          (em 2.5)
       :background            (rgb 70 70 70)
       }
-     ".thing" {:align-self :start}
+     ".thing" {:align-self :start :justify-self :stretch}
      ".input" {:align-self :start}
      ".text-input"
      {
