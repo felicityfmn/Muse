@@ -11,7 +11,6 @@
     [garden.core :as gc]
     #?(:cljs [reagent.ratom :as ra])
     [rs.css :as css]
-    [rs.colour :as colour]
     [garden.color :as color :refer [hsl rgb rgba hex->rgb as-hex]]
     [garden.units :as u :refer [percent px pt em ms]]
     [clojure.string :as string]))
@@ -27,18 +26,30 @@
 (defn make-state
   ([]
    (make-state
-    {
-     :text "Hello world!"
-     :numbers
-           {
-            :x            7
-            :colour-index 0
-            }
-     :ranges
-           {
-            :x {:min 3 :max 31 :step 3}
-            }
-     }))
+     {
+      :text "Hello world!"
+      :numbers
+            {
+             :x            7
+             :column-width 1
+             :colour-index 0
+             }
+      :ranges
+            {
+             :x {:min 3 :max 31 :step 3}
+             }
+      :css
+            {
+             :grid
+               {
+                :display               :grid
+                :column-width          (em 256)
+                :grid-template-columns "1fr 1fr"
+                :grid-template-rows    (em 2)
+                :grid-gap              (em 1)
+                }
+             }
+      }))
     ([state]
       (-> state
         add-colours)))
@@ -51,7 +62,7 @@
     (println "change text" message)
     (assoc state :text text)))
 
-(defn change-number
+(defn change-thing
   ([state {value :value path :path :as message}]
-    (println "change number at path" path)
+    (println "change value at path" path value (type value))
     (assoc-in state path value)))
