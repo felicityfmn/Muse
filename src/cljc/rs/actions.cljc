@@ -31,22 +31,21 @@
       :numbers
             {
              :x            7
-             :column-width 1
              :colour-index 0
              }
       :ranges
             {
-             :x {:min 3 :max 31 :step 3}
+             :x {:min 3 :max 33 :step 3}
              }
       :css
             {
              :grid
                {
                 :display               :grid
-                :column-width          (em 256)
                 :grid-template-columns "1fr 1fr"
-                :grid-template-rows    (em 2)
-                :grid-gap              (em 1)
+                :grid-auto-rows        (em 1.3)
+                :grid-row-gap          (em 1)
+                :grid-column-gap       (em 1)
                 }
              }
       }))

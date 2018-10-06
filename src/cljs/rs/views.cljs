@@ -26,53 +26,35 @@
 
 (defn css-root-view []
   [css-view {:vendors ["webkit" "moz"] :auto-prefix #{:column-width :user-select :appearance}}
-         [
-           "body" {
-                    :margin  0
-                    :padding 0
-                    :background  (rgb 255 150 0)
-                    :font-family "Gill Sans, Helvetica, Verdana, Sans Serif"
-                    :font-size   (em 1)
-                    :font-weight :normal
-                    :cursor      :default
-                    }
-          ".main" {
-                 :background            (rgb 250 250 10)
-                 :color                 :red
-                 :font-family           "monospace"
-                 :width                 "100%"
-                 :display               :grid
-                 :grid-template-columns "32px auto 32px"
-                 :grid-template-rows    :auto
-                 :grid-column-gap       (em 1)
-                 :grid-row-gap          (em 0.5)
-                 :grid-template-areas   (strs '[[. . .]
-                                                [. content .]
-                                                [. . .]])
-                 }
-          ".things"
-            {
-              :display :grid
-              :grid-area :content
-              :grid-template-columns "40% 60%"
-              :grid-column-gap       (em 1)
-              :grid-template-rows     :auto
-              :grid-row-gap          (em 1)
-              :grid-template-areas   (strs '[[control thing]])
-              :background (rgb 70 70 70)
-            }
-           ".input"
-            {
-              :grid-area :control
-            }
-            ".thing"
-            {
-              :grid-area :thing
-            }
-         ]])
+     [
+       "body" {
+                :margin  0
+                :padding 0
+                :background  (rgb 50 50 50)
+                :font-family "Gill Sans, Helvetica, Verdana, Sans Serif"
+                :font-size   (em 1)
+                :font-weight :normal
+                :cursor      :default
+                }
+       ".main" {
+             :background            (rgb 70 70 70)
+             :color                 (rgb 255 250 210)
+             :font-family           "monospace"
+             :width                 "100%"
+             :height                "100vh"
+             :display               :grid
+             :grid-template-columns "32px auto 32px"
+             :grid-template-rows    :auto
+             :grid-column-gap       (em 1)
+             :grid-row-gap          (em 0.5)
+             :grid-template-areas   (strs '[[. . .]
+                                            [. content .]
+                                            [. . .]])
+             }
+     ]])
 
 (defn input-text-view [text]
-  [:input
+  [:input.input.text-input
      {
       :type  :textarea
       :value text
@@ -82,7 +64,7 @@
       }])
 
 (defn input-number-view [{v :value min :min max :max step :step path :path}]
-  [:input
+  [:input.input
    {
     :type  :range
     :min   min
@@ -96,7 +78,7 @@
     }])
 
 (defn input-em-view [{v :value min :min max :max step :step path :path}]
-  [:input
+  [:input.input
    {
     :type  :range
     :min   min
@@ -112,6 +94,26 @@
 (defn css-things-view [{colour-index :colour-index} colours]
   [css-view
     [
+     ".things"
+        {
+          :display :grid
+          :grid-area :content
+          :grid-template-columns "40% 60%"
+          :grid-column-gap       (em 2)
+          :grid-auto-rows        (px 100)
+          :grid-row-gap          (em 1)
+          :background (rgb 70 70 70)
+        }
+      ".thing" {:align-self :start}
+      ".input" {:align-self :start}
+      ".text-input"
+        {
+          :font-size (em 1)
+          :color    (rgb 255 252 250)
+          :background (rgb 90 90 90)
+          :padding (em 1)
+          :border :none
+        }
       ".sample" {
                  :background (colours colour-index)
                  :width (px 64)
@@ -125,12 +127,23 @@
                }
     ]])
 
-(defn css-grid-view [rules]
+(defn css-grid-view [rule]
   [css-view
     [
-      ".grid-demo" {:grid-area :content}
-      ".my-columns" rules
+      ".my-columns" rule
     ]])
+
+(defn table-view [a-map]
+  (into [:div.my-columns]
+    (mapcat
+      (fn [[k v]]
+       [[:div (str k)]
+        [:div
+          (cond
+            (:magnitude v) (str (:magnitude v))
+            :otherwise (str v))]
+        ])
+      a-map)))
 
 (defn root-view
   "
@@ -152,13 +165,15 @@
         [css-things-view numbers colours]
         [:div.things
          [input-text-view text]
-         [:div.thing.message text]
+           [:div.thing.message text]
          [input-number-view (merge range-x {:path [:numbers :x] :value x})]
-         [:div.number x]
+           [:div.thing.number x]
          [input-number-view {:min 0 :max (dec (count colours)) :step 1 :path [:numbers :colour-index] :value colour-index}]
-         [:div.thing.sample]
-         [input-em-view {:min 32 :max 512 :step 1 :path [:css :grid :column-width] :value (:column-width grid-css)}]
-         [:div.thing.grid-demo
-          [css-grid-view grid-css]
-          [:div.thing.my-columns (str grid-css)]]]
+           [:div.thing.sample]
+         [:div.input
+          [input-em-view {:min 0.3 :max 8 :step 0.3 :path [:css :grid :grid-column-gap] :value (:grid-column-gap grid-css)}]
+          [input-em-view {:min 0.3 :max 4 :step 0.3 :path [:css :grid :grid-row-gap] :value (:grid-row-gap grid-css)}]]
+           [:div.thing.grid-demo
+            [css-grid-view grid-css]
+            [table-view grid-css]]]
         ]]))
