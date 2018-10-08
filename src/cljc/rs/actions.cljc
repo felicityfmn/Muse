@@ -22,7 +22,7 @@
 ; as Clojurescript or a normal Clojure atom if this
 ; is running in a Clojure REPL
 (defonce app-state
-  #?(:cljs (ra/atom {}) :clj (atom {})))
+  #?(:cljs (ra/atom nil) :clj (atom nil)))
 
 (defn add-colours [state]
   (assoc state :colours ["red" "green" "black" "orange" "blue" "purple" "cyan" "yellow"]))
@@ -32,6 +32,7 @@
    (make-state
      {
       :text "Hello world!"
+      :reload? false
       :numbers
             {
              :x            7
