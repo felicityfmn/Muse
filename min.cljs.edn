@@ -1,0 +1,16 @@
+; Clojurescript compilation options - run this in a terminal:
+;
+; clj -m figwheel.main -b min
+;
+{
+ :watch-dirs ["src/cljc" "src/cljs"]
+ :main                 "rs.main"
+ :asset-path           "js"
+ :source-map           false
+ :source-map-timestamp false
+ :pretty-print         false
+ :output-dir           "target/js"
+ :output-to            "resources/public/js/main.js"
+ :optimizations        :advanced
+ :parallel-build       true
+}
