@@ -7,8 +7,8 @@
     [oops.core :refer [oget]]
     [garden.core :as gc :refer [css]]
     [garden.color :as color :refer [hsl rgb rgba hex->rgb as-hex]]
-    [garden.units :as u :refer [px pt em ms percent]]
-    [rs.css :as rcss :refer [strs]]
+    [garden.units :as u :refer [px pt em ms percent defunit]]
+    [rs.css :as rcss :refer [fr strs]]
     [rs.actions :as actions]
     [clojure.string :as string]))
 
@@ -35,7 +35,7 @@
              :margin      0
              :padding     0
              :background  (rgb 50 50 50)
-             :font-family "Gill Sans, Helvetica, Verdana, Sans Serif"
+             :font-family ["Gill Sans" "Helvetica" "Verdana" "Sans Serif"]
              :font-size   (em 1)
              :font-weight :normal
              :cursor      :default
@@ -43,16 +43,20 @@
      ".main" {
               :background            (rgb 70 70 70)
               :color                 (rgb 255 250 210)
-              :width                 "100%"
-              :height                "100%"
+              :width                 (percent 100)
+              :height                (percent 100)
               :display               :grid
-              :grid-template-columns "0.1fr 1fr 0.1fr"
+              :grid-template-columns [[(fr 0.1) (fr 1) (fr 0.1)]]
               :grid-template-rows    :auto
               :grid-column-gap       (em 1)
               :grid-row-gap          (em 2)
               :grid-template-areas   (strs '[[.    .    .]
                                              [. content .]
                                              [.    .    .]])
+              }
+      ".button"
+              {
+                :cursor :pointer
               }
      ]]))
 
@@ -71,10 +75,11 @@
 
 (defn input-number-view
   "Returns an input view that converts to/from a number"
-  [{v :value min :min max :max step :step path :path}]
+  [{v :value min :min max :max step :step title :title path :path}]
   [:input.input
    {
     :type  :range
+    :title title
     :min   min
     :max   max
     :step  step
@@ -86,12 +91,13 @@
                {:path path :value (js/parseFloat (oget e [:target :value]))}))
     }])
 
-(defn input-em-view
+(defn input-unit-view
   "Returns an input view that converts to/from em units"
-  [{v :value min :min max :max step :step path :path}]
+  [{u :unit v :value min :min max :max step :step title :title path :path}]
   [:input.input
    {
     :type  :range
+    :title (or title (str path))
     :min   min
     :max   max
     :step  step
@@ -99,7 +105,7 @@
     :on-change
            (fn [e]
              (actions/update! actions/change-thing
-               {:path path :value (em (js/parseFloat (oget e [:target :value])))}))
+               {:path path :value (u (js/parseFloat (oget e [:target :value])))}))
     }])
 
 (defn css-things-view
@@ -111,7 +117,7 @@
      {
       :display               :grid
       :grid-area             :content
-      :grid-template-columns "40% 60%"
+      :grid-template-columns [[(percent 40) (percent 60)]]
       :grid-column-gap       (em 1)
       :grid-auto-rows        :auto
       :grid-row-gap          (em 2.5)
@@ -147,6 +153,10 @@
      {
       :background :black
       }
+     ".list" {
+               :display :flex
+               :flex-flow [:row :wrap]
+             }
      ]]))
 
 (defn css-grid-view
@@ -157,8 +167,23 @@
       ".my-columns" rule
     ]])
 
+(defn listy-view
+  "Returns a view to display a list of things"
+  [a-list]
+  (into [:div.list]
+    (map
+      (fn [v]
+        [:div
+         (cond
+           (:magnitude v) (str "(" (name (:unit v)) " " (:magnitude v) ")")
+           (:hue v)       (str "(hsl " (string/join " " [(:hue v) (:saturation v) (:lightness v)]) ")")
+           (seqable? v)   [listy-view v]
+           :otherwise     (str v))])
+      a-list)))
+
 (defn table-view
-  "Returns a table to display some CSS rules"
+  "Returns a view to display a table
+   of the given map's key-value pairs"
   [a-map]
   (into [:div.my-columns]
     (mapcat
@@ -166,8 +191,10 @@
        [[:div (str k)]
         [:div
           (cond
-            (:magnitude v) (str (:magnitude v))
-            :otherwise (str v))]
+            (:magnitude v) (str "(" (name (:unit v))  " " (:magnitude v) ")")
+            (:hue v)       (str "(hsl " (string/join " " [(:hue v) (:saturation v) (:lightness v)]) ")")
+            (seqable? v)   [listy-view v]
+            :otherwise     (str v))]
         ])
       a-map)))
 
@@ -199,19 +226,22 @@
        [css-root-view]
        [:div.main
         [css-things-view numbers colours]
+        [:div.button {:title "reinitialize everything!" :on-click (fn [e] (actions/update! actions/initialize-state {}))} "🌅"]
         [:div.things
-         [input-text-view text]
-           [:div.thing.message text]
-         [input-number-view (merge range-x {:path [:numbers :x] :value x})]
-           [:div.thing.number x]
-         [input-number-view {:min 0 :max (dec (count colours)) :step 1 :path [:numbers :colour-index] :value colour-index}]
-           [:div.thing.sample]
-         [input-number-view {:min 3 :max 17 :step 1 :path [:numbers :circles] :value circles}]
-           [circles-view circles]
-         [:div.input
-          [input-em-view {:min 0.3 :max 8 :step 0.3 :path [:css :grid :grid-column-gap] :value (:grid-column-gap grid-css)}]
-          [input-em-view {:min 0.3 :max 4 :step 0.3 :path [:css :grid :grid-row-gap] :value (:grid-row-gap grid-css)}]]
-           [:div.thing.grid-demo
-            [css-grid-view grid-css]
-            [table-view grid-css]]]
+          [input-text-view text]
+          [:div.thing.message text]
+          [input-number-view (merge range-x {:path [:numbers :x] :value x :title "x"})]
+          [:div.thing.number x]
+          [input-number-view {:min 0 :max (dec (count colours)) :step 1 :title "a colour" :path [:numbers :colour-index] :value colour-index}]
+          [:div.thing.sample]
+          [input-number-view {:min 3 :max 17 :step 1 :title "Number of circles" :path [:numbers :circles] :value circles}]
+          [circles-view circles]
+          [:div.input
+            [input-unit-view {:unit percent :min 5 :max 50 :step 1 :path [:css :grid :grid-template-columns 0 0] :value (get-in grid-css [:grid-template-columns 0 0])}]
+            [input-unit-view {:unit em :min 0.3 :max 4 :step 0.1 :path [:css :grid :grid-row-gap] :value (:grid-row-gap grid-css)}]
+            [input-number-view {:min 0 :max 255 :step 1 :title "Hue" :path [:css :grid :background :hue] :value (get-in grid-css [:background :hue])}]
+            ]
+            [:div.thing.grid-demo
+              [css-grid-view grid-css]
+              [table-view grid-css]]]
         ]]))

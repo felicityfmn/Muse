@@ -12,7 +12,7 @@
   (:require
     [garden.core :as gc]
     #?(:cljs [reagent.ratom :as ra])
-    [rs.css :as css]
+    [rs.css :as css :refer [fr]]
     [garden.color :as color :refer [hsl rgb rgba hex->rgb as-hex]]
     [garden.units :as u :refer [percent px pt em ms]]
     [clojure.string :as string]))
@@ -20,7 +20,7 @@
 ; this is the entire state of the application
 ; note the use of a Reagent atom when this runs
 ; as Clojurescript or a normal Clojure atom if this
-; is running in a Clojure REPL
+; is running in Clojure
 (defonce app-state
   #?(:cljs (ra/atom nil) :clj (atom nil)))
 
@@ -31,29 +31,29 @@
   ([]
    (make-state
      {
-      :text "Hello world!"
-      :reload? false
+      :text    "Hello world!"
       :numbers
-            {
-             :x            7
-             :circles      3
-             :colour-index 0
-             }
-      :ranges
-            {
-             :x {:min 3 :max 33 :step 3}
-             }
-      :css
-            {
-             :grid
                {
-                :display               :grid
-                :grid-template-columns "1fr 1fr"
-                :grid-auto-rows        (em 1.3)
-                :grid-row-gap          (em 1)
-                :grid-column-gap       (em 1)
+                :x            7
+                :circles      3
+                :colour-index 0
                 }
-             }
+      :ranges
+               {
+                :x {:min 3 :max 33 :step 3}
+                }
+      :css
+               {
+                :grid
+                {
+                 :display               :grid
+                 :background            (hsl 197 31 49)
+                 :grid-template-columns [[(percent 30) (fr 1)]]
+                 :grid-auto-rows        (em 1.3)
+                 :grid-row-gap          (em 1)
+                 :grid-column-gap       (em 1)
+                 }
+                }
       }))
     ([state]
       (-> state
@@ -71,6 +71,10 @@
   "
   [a-function message]
   (swap! app-state (fn [current-state] (a-function current-state message))))
+
+(defn initialize-state
+  ([state message]
+    (make-state)))
 
 (defn change-text
   ([state {text :text :as message}]
