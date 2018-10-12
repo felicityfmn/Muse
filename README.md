@@ -15,7 +15,7 @@ It displays a table of things that change the application's state:
 * a range slider that changes a number
 * another range slider that chooses a colour
 * some circles
-* a fancy table with (get this) dynamic CSS layout
+* a fancy table with dynamic CSS layout
 
 CSS is handled completely by Garden, both statically and dynamically in a few different ways.
 
