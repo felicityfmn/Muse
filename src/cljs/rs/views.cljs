@@ -26,41 +26,46 @@
 
 (defn css-root-view
   "
-    Static general CSS for the whole page
+    Returns static CSS for the whole page
   "
   ([]
     [css-view {:vendors ["webkit" "moz"] :auto-prefix #{:column-width :user-select :appearance}}
-    [
-     "body" {
-             :margin      0
-             :padding     0
-             :background  (rgb 50 50 50)
-             :font-family ["Gill Sans" "Helvetica" "Verdana" "Sans Serif"]
-             :font-size   (em 1)
-             :font-weight :normal
-             :cursor      :default
-             }
-     ".main" {
-              :background            (rgb 70 70 70)
-              :color                 (rgb 255 250 210)
-              :width                 (percent 100)
-              :height                (percent 100)
-              :display               :grid
-              :grid-template-columns [[(fr 0.1) (fr 1) (fr 0.1)]]
-              :grid-template-rows    :auto
-              :grid-column-gap       (em 1)
-              :grid-row-gap          (em 2)
-              :grid-template-areas   (strs '[[.    .    .]
-                                             [. content .]
-                                             [.    .    .]])
-              }
-      ".button"
-              {
-                :cursor :pointer
-              }
-     ]]))
+      [
+       "body" {
+               :margin      0
+               :padding     0
+               :background  (rgb 50 50 50)
+               :font-family ["Gill Sans" "Helvetica" "Verdana" "Sans Serif"]
+               :font-size   (em 1)
+               :font-weight :normal
+               :cursor      :default
+               }
+       ".main" {
+                :background            (rgb 70 70 70)
+                :color                 (rgb 255 250 210)
+                :width                 (percent 100)
+                :height                (percent 100)
+                :display               :grid
+                :grid-template-columns [[(fr 0.1) (fr 1) (fr 0.1)]]
+                :grid-template-rows    :auto
+                :grid-column-gap       (em 1)
+                :grid-row-gap          (em 2)
+                :grid-template-areas   (strs '[[.    .    .]
+                                               [. content .]
+                                               [.    .    .]])
+                }
+        ".button"
+                {
+                  :cursor :pointer
+                }
+       ]]))
 
-(defn input-text-view [text]
+(defn input-text-view
+  "
+    Returns a textarea component
+    that changes the :text key of the state
+  "
+  [text]
   [:input.input.text-input
      {
       :type  :textarea
