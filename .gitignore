@@ -3,7 +3,7 @@
 /checkouts
 pom.xml
 pom.xml.asc
-/public/js
+/resources/public/js
 /.idea
 *.iml
 *.log
