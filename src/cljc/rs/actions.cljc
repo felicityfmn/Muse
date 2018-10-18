@@ -12,7 +12,8 @@
   (:require
     [garden.core :as gc]
     #?(:cljs [reagent.ratom :as ra])
-    [rs.css :as css :refer [fr]]
+    #?(:cljs [oops.core :refer [oget ocall]])
+    [rs.css :as css :refer [fr strs]]
     [garden.color :as color :refer [hsl rgb rgba hex->rgb as-hex]]
     [garden.units :as u :refer [percent px pt em ms]]
     [clojure.string :as string]))
@@ -31,57 +32,98 @@
   ([]
    (make-state
      {
-      :text    "Hello world!"
+      :text "Hello world!"
       :numbers
-               {
-                :x            7
-                :circles      3
-                :colour-index 0
-                }
+            {
+             :x            7
+             :circles      3
+             :colour-index 0
+             }
       :ranges
-               {
-                :x {:min 3 :max 33 :step 3}
-                }
+            {
+             :x {:min 3 :max 33 :step 3}
+             }
       :css
-               {
-                :grid
-                {
-                 :display               :grid
-                 :background            (hsl 197 31 49)
-                 :grid-template-columns [[(percent 30) (fr 1)]]
-                 :grid-auto-rows        (em 1.3)
-                 :grid-row-gap          (em 1)
-                 :grid-column-gap       (em 1)
-                 }
-                }
+            {
+             :main
+             {
+              :background            (rgb 70 70 70)
+              :color                 (rgb 255 250 210)
+              :width                 (percent 100)
+              :height                (percent 100)
+              :display               :grid
+              :grid-template-columns [[(em 2) (fr 1) (em 2)]]
+              :grid-template-rows    :auto
+              :grid-column-gap       (em 1)
+              :grid-row-gap          (em 2)
+              :grid-template-areas   (strs '[[tl t tr]
+                                             [l content r]
+                                             [bl b br]])
+              }
+             :little-layout
+             {
+              :background            (rgb 40 40 40)
+              :color                 (rgb 255 250 210)
+              :width                 (percent 100)
+              :height                (percent 100)
+              :display               :grid
+              :grid-template-columns [[(fr 1) (percent 10) (fr 2)]]
+              :grid-template-rows    [[(em 1) (fr 1) (em 1)]]
+              :grid-column-gap       (em 0.3)
+              :grid-row-gap          (em 0.3)
+              :grid-template-areas   (strs '[[tl   t   tr]
+                                             [l content r]
+                                             [bl   b   br]])
+              }
+             :grid
+             {
+              :padding (em 1)
+              :border-radius (px 8)
+              :display               :grid
+              :background            (hsl 197 31 49)
+              :grid-template-columns [[(percent 20) (fr 1)]]
+              :grid-auto-rows        (em 1.3)
+              :grid-row-gap          (em 1)
+              :grid-column-gap       (em 1)
+              }
+             }
       }))
     ([state]
       (-> state
         add-colours)))
 
-(defn update!
-  "
-   This updates the application state using
-   the given function a-function and the given message
-
-   See the following functions for examples of
-   functions that can change the state
-
-   They're called from event handlers in rs.views
-  "
-  [a-function message]
-  (swap! app-state (fn [current-state] (a-function current-state message))))
-
 (defn initialize-state
   ([state message]
     (make-state)))
 
-(defn change-text
-  ([state {text :text :as message}]
-    (println "change text" message)
-    (assoc state :text text)))
-
 (defn change-thing
   ([state {value :value path :path :as message}]
-    (println "change value at path" path value (type value))
     (assoc-in state path value)))
+
+(defn update!
+  "
+   This updates the application state using
+   the given function a-function and the given message
+  "
+  [a-function message]
+  (swap! app-state
+    (fn [current-state] (a-function current-state message))))
+
+(defn handle-message!
+  "Maybe updates the app state with
+  a function that depends on the given message"
+  ([{of-what-was-clicked-on :clicked :as msg}]
+   (handle-message! msg
+    (case of-what-was-clicked-on
+      :reinitialize initialize-state
+      change-thing)))
+  ([msg a-function]
+    (update! a-function msg)))
+
+(defn animation! []
+  #?(:cljs
+     (.requestAnimationFrame js/window
+      (fn []
+        (swap! app-state (fn [s] (update-in s [:numbers :x] (fn [y] (mod (inc y) 255)))))
+        (animation!)))
+      :clj :no-animation-available-in-normal-Clojure))

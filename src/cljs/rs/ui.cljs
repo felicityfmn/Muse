@@ -7,14 +7,14 @@
     [rs.actions :as actions]
     [rs.views :as views]))
 
-(enable-console-print!)
-
 (defn ^:before-load before-start!
   [& q]
   (println "---before restart---"))
 
 (defn ^:after-load start! []
   (when (nil? @actions/app-state)
-    (reset! actions/app-state (actions/make-state)))
+    (do
+      (reset! actions/app-state (actions/make-state))
+      (actions/animation!)))
   (r/render [views/root-view]
      (.getElementById js/document "app")))

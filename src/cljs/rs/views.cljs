@@ -8,6 +8,7 @@
     [garden.core :as gc :refer [css]]
     [garden.color :as color :refer [hsl rgb rgba hex->rgb as-hex]]
     [garden.units :as u :refer [px pt em ms percent defunit]]
+    [garden.compression :refer [compress-stylesheet]]
     [rs.css :as rcss :refer [fr strs]]
     [rs.actions :as actions]
     [clojure.string :as string]))
@@ -22,60 +23,44 @@
     (css-view {} rules))
   ([flags rules]
     [:style {:type "text/css" :scoped true}
-      (css flags (map vec (partition 2 rules)))]))
+     (css flags (map vec (partition 2 rules)))]))
 
 (defn css-root-view
   "
     Returns static CSS for the whole page
   "
-  ([]
+  ([{main :main}]
     [css-view {:vendors ["webkit" "moz"] :auto-prefix #{:column-width :user-select :appearance}}
-      [
-       "body" {
-               :margin      0
-               :padding     0
-               :background  (rgb 50 50 50)
-               :font-family ["Gill Sans" "Helvetica" "Verdana" "Sans Serif"]
-               :font-size   (em 1)
-               :font-weight :normal
-               :cursor      :default
-               }
-       ".main" {
-                :background            (rgb 70 70 70)
-                :color                 (rgb 255 250 210)
-                :width                 (percent 100)
-                :height                (percent 100)
-                :display               :grid
-                :grid-template-columns [[(fr 0.1) (fr 1) (fr 0.1)]]
-                :grid-template-rows    :auto
-                :grid-column-gap       (em 1)
-                :grid-row-gap          (em 2)
-                :grid-template-areas   (strs '[[.    .    .]
-                                               [. content .]
-                                               [.    .    .]])
-                }
-        ".button"
-                {
-                  :cursor :pointer
-                }
-       ]]))
+     [
+      "body" {
+              :margin      0
+              :padding     0
+              :background  (rgb 50 50 50)
+              :font-family ["Gill Sans" "Helvetica" "Verdana" "Sans Serif"]
+              :font-size   (em 1)
+              :font-weight :normal
+              :cursor      :default
+              }
+      ".main" main
+      ".button"
+      {
+       :cursor :pointer
+       }
+      ]]))
 
 (defn input-text-view
   "
     Returns a textarea component
     that changes the :text key of the state
   "
-  [text]
+  [{v :value title :title path :path}]
   [:input.input.text-input
      {
-      :type  :textarea
-      :value text
-      :on-change
-       (fn [e]
-         ; we have received an event object, e, which is a Javascript object
-         ; we need to get its value and send it to the actions/update! function
-         ; to change the app-state, using the function actions/change-text to do it
-         (actions/update! actions/change-text {:text (oget e [:target :value])}))
+       :type  :textarea
+       :title title
+       :value v
+       :on-change
+        (fn [e] (actions/handle-message! {:path path :value (oget e [:target :value])}))
       }])
 
 (defn input-number-view
@@ -91,9 +76,7 @@
     :value v
     :on-change
            (fn [e]
-             ; in this case we're going to send the given path to change too
-             (actions/update! actions/change-thing
-               {:path path :value (js/parseFloat (oget e [:target :value]))}))
+             (actions/handle-message! {:path path :value (js/parseFloat (oget e [:target :value]))}))
     }])
 
 (defn input-unit-view
@@ -109,8 +92,7 @@
     :value (get v :magnitude)
     :on-change
            (fn [e]
-             (actions/update! actions/change-thing
-               {:path path :value (u (js/parseFloat (oget e [:target :value])))}))
+             (actions/handle-message! {:path path :value (u (js/parseFloat (oget e [:target :value])))}))
     }])
 
 (defn css-things-view
@@ -162,6 +144,25 @@
                :display :flex
                :flex-flow [:row :wrap]
              }
+     ".little-layouts"
+     {
+      :padding (em 1)
+      :display               :grid
+      :grid-template-columns [(repeat 4 (fr 1))]
+      :grid-template-rows    [(repeat 4 (fr 1))]
+      :grid-column-gap       (em 2)
+      :grid-row-gap          (em 2)
+      :background            (rgb 50 50 50)
+      }
+     ".little-layout-content" {:background (rgb 20 20 20) :justify-self :center :grid-area :content :font-size (em 1) :color (rgb 255 250 240)}
+     ".l" {:background (rgb 255 0 0)    :grid-area :l}
+     ".r" {:background (rgb 255 250 0)  :grid-area :r}
+     ".t" {:background (rgb 20 140 255) :grid-area :t}
+     ".b" {:background (rgb 30 255 100) :grid-area :b}
+     ".tl" {:background (rgb 250 30 200) :grid-area :tl}
+     ".tr" {:background (rgb 250 30 200) :grid-area :tr}
+     ".bl" {:background (rgb 250 30 200) :grid-area :bl}
+     ".br" {:background (rgb 250 30 200) :grid-area :br}
      ]]))
 
 (defn css-grid-view
@@ -213,6 +214,27 @@
           [:circle.a-circle {:cx i :cy 0 :r (/ 0.9 circles)}])
         (range -1 1 (/ 2 circles))))])
 
+(defn little-layouts-view
+  "Returns a view of lots of variants of the given layout rule"
+  ([little-layout-rule i n]
+    (into
+      [:div.thing.little-layouts
+        [css-view (into [".little-layout" little-layout-rule]
+          (mapcat
+            (fn [x]
+              [(str ".little-layout-" x)
+               {:grid-template-columns
+                (update-in (get little-layout-rule :grid-template-columns) [0 1]
+                  (fn [{p :magnitude}] (percent (min 100 (+ p (* 0.3 (Math/pow x 2)))))))}])
+            (range 0 n)))]]
+     (map
+       (fn [x]
+         [:div {:class (str "little-layout little-layout-" x)}
+          [:div.little-layout-content (str (+ i x))]
+          [:div.l] [:div.r] [:div.t] [:div.b]
+          [:div.tl] [:div.bl] [:div.tr] [:div.br]])
+       (range 0 n)))))
+
 (defn root-view
   "
    Returns a view component for
@@ -223,30 +245,24 @@
    Each component has its own CSS
   "
   ([] (root-view @actions/app-state))
-  ([{text :text {range-x :x} :ranges
-       {x :x colour-index :colour-index circles :circles :as numbers} :numbers
-        colours :colours
-        {grid-css :grid} :css}]
+  ([{{i :x :as numbers}                                      :numbers
+     colours                                                 :colours
+     {grid-css :grid little-layout :little-layout :as rules} :css}]
      [:div.root
-       [css-root-view]
+       [css-root-view rules]
        [:div.main
         [css-things-view numbers colours]
-        [:div.button {:title "reinitialize everything!" :on-click (fn [e] (actions/update! actions/initialize-state {}))} "🌅"]
+        [:div.button {:title "reinitialize everything!" :on-click (fn [e] (actions/handle-message! {:clicked :reinitialize}))} "🌅"]
         [:div.things
-          [input-text-view text]
-          [:div.thing.message text]
-          [input-number-view (merge range-x {:path [:numbers :x] :value x :title "x"})]
-          [:div.thing.number x]
-          [input-number-view {:min 0 :max (dec (count colours)) :step 1 :title "a colour" :path [:numbers :colour-index] :value colour-index}]
-          [:div.thing.sample]
-          [input-number-view {:min 3 :max 17 :step 1 :title "Number of circles" :path [:numbers :circles] :value circles}]
-          [circles-view circles]
           [:div.input
+            [input-unit-view {:unit px :min 4 :max 128 :step 1 :path [:css :grid :border-radius] :value (get-in grid-css [:border-radius])}]
             [input-unit-view {:unit percent :min 5 :max 50 :step 1 :path [:css :grid :grid-template-columns 0 0] :value (get-in grid-css [:grid-template-columns 0 0])}]
             [input-unit-view {:unit em :min 0.3 :max 4 :step 0.1 :path [:css :grid :grid-row-gap] :value (:grid-row-gap grid-css)}]
             [input-number-view {:min 0 :max 255 :step 1 :title "Hue" :path [:css :grid :background :hue] :value (get-in grid-css [:background :hue])}]
             ]
             [:div.thing.grid-demo
               [css-grid-view grid-css]
-              [table-view grid-css]]]
-        ]]))
+              [table-view grid-css]]
+          [input-unit-view {:unit percent :min 3 :max 20 :step 1 :path [:css :little-layout :grid-template-columns 0 1] :value (get-in rules [:little-layout :grid-template-columns 0 1])}]
+          [little-layouts-view little-layout i 16]]
+          ]]))
