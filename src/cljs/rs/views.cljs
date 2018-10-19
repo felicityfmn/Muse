@@ -25,28 +25,43 @@
     [:style {:type "text/css" :scoped true}
      (css flags (map vec (partition 2 rules)))]))
 
+(defn range-styles []
+  (mapcat (juxt first (comp (partial merge {
+      :appearance :none
+      :background :green
+    }) last))
+    [
+      ["input[type=range]::-moz-range-thumb" {}]
+      ["input[type=range]::-webkit-slider-thumb"
+       {
+         :margin-top (px 0)
+         :background :red
+       }]
+    ]))
+
 (defn css-root-view
   "
     Returns static CSS for the whole page
   "
   ([{main :main}]
-    [css-view {:vendors ["webkit" "moz"] :auto-prefix #{:column-width :user-select :appearance}}
-     [
-      "body" {
-              :margin      0
-              :padding     0
-              :background  (rgb 50 50 50)
-              :font-family ["Gill Sans" "Helvetica" "Verdana" "Sans Serif"]
-              :font-size   (em 1)
-              :font-weight :normal
-              :cursor      :default
-              }
-      ".main" main
-      ".button"
-      {
-       :cursor :pointer
-       }
-      ]]))
+    [css-view {:vendors ["webkit" "moz" "ms"]
+               :auto-prefix #{:column-width :user-select :appearance}}
+     (into [
+       "body" {
+               :margin      0
+               :padding     0
+               :background  (rgb 50 50 50)
+               :font-family ["Gill Sans" "Helvetica" "Verdana" "Sans Serif"]
+               :font-size   (em 1)
+               :font-weight :normal
+               :cursor      :default
+               }
+       ".main" main
+       ".button"
+       {
+        :cursor :pointer
+        }
+       ] (range-styles))]))
 
 (defn input-text-view
   "
