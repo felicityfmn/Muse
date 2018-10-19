@@ -155,10 +155,10 @@
       :background            (rgb 50 50 50)
       }
      ".little-layout-content" {:background (rgb 20 20 20) :justify-self :center :grid-area :content :font-size (em 1) :color (rgb 255 250 240)}
-     ".l" {:background (rgb 255 0 0)    :grid-area :l}
-     ".r" {:background (rgb 255 250 0)  :grid-area :r}
-     ".t" {:background (rgb 20 140 255) :grid-area :t}
-     ".b" {:background (rgb 30 255 100) :grid-area :b}
+     ".l" {:background (rgb 255 0 0)    }
+     ".r" {:background (rgb 255 250 0)  }
+     ".t" {:background (rgb 20 140 255) }
+     ".b" {:background (rgb 30 255 100) }
      ".tl" {:background (rgb 250 30 200) :grid-area :tl}
      ".tr" {:background (rgb 250 30 200) :grid-area :tr}
      ".bl" {:background (rgb 250 30 200) :grid-area :bl}
@@ -229,10 +229,10 @@
             (range 0 n)))]]
      (map
        (fn [x]
-         [:div {:class (str "little-layout little-layout-" x)}
-          [:div.little-layout-content (str (+ i x))]
-          [:div.l] [:div.r] [:div.t] [:div.b]
-          [:div.tl] [:div.bl] [:div.tr] [:div.br]])
+         (into [:div {:class (str "little-layout little-layout-" x)}
+           [:div.little-layout-content (str (+ i x))]
+           [:div.tl] [:div.bl] [:div.tr] [:div.br]
+           ] (map [[:div.l] [:div.r] [:div.t] [:div.b]] (map (fn [y] (mod (+ x y) 4)) (range 0 4)))))
        (range 0 n)))))
 
 (defn root-view
@@ -255,7 +255,7 @@
         [:div.button {:title "reinitialize everything!" :on-click (fn [e] (actions/handle-message! {:clicked :reinitialize}))} "🌅"]
         [:div.things
           [:div.input
-            [input-unit-view {:unit px :min 4 :max 128 :step 1 :path [:css :grid :border-radius] :value (get-in grid-css [:border-radius])}]
+            [input-unit-view {:unit px :min 0 :max 32 :step 1 :path [:css :grid :border-radius] :value (get-in grid-css [:border-radius])}]
             [input-unit-view {:unit percent :min 5 :max 50 :step 1 :path [:css :grid :grid-template-columns 0 0] :value (get-in grid-css [:grid-template-columns 0 0])}]
             [input-unit-view {:unit em :min 0.3 :max 4 :step 0.1 :path [:css :grid :grid-row-gap] :value (:grid-row-gap grid-css)}]
             [input-number-view {:min 0 :max 255 :step 1 :title "Hue" :path [:css :grid :background :hue] :value (get-in grid-css [:background :hue])}]
