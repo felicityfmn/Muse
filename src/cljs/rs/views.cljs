@@ -194,7 +194,7 @@
      (map
        (fn [x]
          (into [:div {:class (str "little-layout little-layout-" x)}
-           [:div.little-layout-content (str x)]
+           [:div.little-layout-content (str (+ x i))]
            [:div.tl] [:div.bl] [:div.tr] [:div.br]
            ] (map [[:div.l] [:div.r] [:div.t] [:div.b]] (map (fn [y] (mod (+ x y) 4)) (range 0 4)))))
        (range 0 n)))))
