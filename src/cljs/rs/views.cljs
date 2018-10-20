@@ -23,28 +23,70 @@
     (css-view {} rules))
   ([flags rules]
     [:style {:type "text/css" :scoped true}
-     (css flags (map vec (partition 2 rules)))]))
+     (css flags (map vec (partition 2 rules)))])
+  ([flags css-rule-map keyz]
+    [:style {:type "text/css" :scoped true}
+     (css flags (map (juxt identity css-rule-map) keyz))]))
 
-(defn css-root-view
-  "
-    Returns static CSS for the whole page
-  "
-  ([{main :main}]
-    [css-view {:vendors ["webkit" "moz" "ms"]
-               :auto-prefix #{:column-width :user-select :appearance}}
-     [
-      "body" {
-              :margin      0
-              :padding     0
-              :background  (rgb 50 50 50)
-              :font-family ["Gill Sans" "Helvetica" "Verdana" "Sans Serif"]
-              :font-size   (em 1)
-              :font-weight :normal
-              :cursor      :default
-              }
-      ".main" main
-      ".button" {:cursor :pointer}
-      ]]))
+(defn css-things-view
+  "Some static CSS rules for the table-of-things view"
+  ([]
+   [css-view
+    [
+     ".things"
+       {
+        :display               'grid
+        :grid-area             :content
+        :grid-template-columns [[(percent 20) (percent 80)]]
+        :grid-column-gap       (em 1)
+        :grid-auto-rows        :auto
+        :grid-row-gap          (em 2.5)
+        :background            (rgb 70 70 70)
+        }
+     ".thing" {:align-self :start :justify-self :stretch}
+     ".input" {:align-self :start}
+     ".text-input"
+       {
+        :font-size  (em 1)
+        :color      (rgb 255 252 250)
+        :background (rgb 90 90 90)
+        :padding    (em 1)
+        :border     :none
+        }
+     :.a-circle
+     {
+      :fill   (rgb 20 255 100)
+      :stroke :none
+      }
+     :.circles
+     {
+      :background :black
+      }
+     :.list {
+               :display :flex
+               :flex-flow [:row :wrap]
+             }
+     :.little-layouts
+     {
+      :padding (em 1)
+      :display               :grid
+      :grid-template-columns [(repeat 4 (fr 1))]
+      :grid-template-rows    [(repeat 4 (fr 1))]
+      :grid-column-gap       (em 2)
+      :grid-row-gap          (em 2)
+      :background            (rgb 50 50 50)
+      }
+     :.little-layout-content {:background (rgb 20 20 20) :justify-self :center :grid-area :content :font-size (em 1) :color (rgb 255 250 240)}
+     :.l {:background (rgb 255 0 0)    }
+     :.r {:background (rgb 255 250 0)  }
+     :.t {:background (rgb 20 140 255) }
+     :.b {:background (rgb 30 255 100) }
+     :.tl {:background (rgb 250 30 200) :grid-area :tl}
+     :.tr {:background (rgb 250 30 200) :grid-area :tr}
+     :.bl {:background (rgb 250 30 200) :grid-area :bl}
+     :.br {:background (rgb 250 30 200) :grid-area :br}
+     ]]))
+
 
 (defn input-text-view
   "
@@ -93,101 +135,8 @@
              (actions/handle-message! {:path path :value (u (js/parseFloat (oget e [:target :value])))}))
     }])
 
-(defn css-things-view
-  "Some dynamic CSS rules for the table-of-things view"
-  ([{colour-index :colour-index} colours]
-   [css-view
-    [
-     ".things"
-     {
-      :display               :grid
-      :grid-area             :content
-      :grid-template-columns [[(percent 20) (percent 80)]]
-      :grid-column-gap       (em 1)
-      :grid-auto-rows        :auto
-      :grid-row-gap          (em 2.5)
-      :background            (rgb 70 70 70)
-      }
-     ".thing" {:align-self :start :justify-self :stretch}
-     ".input" {:align-self :start}
-     ".text-input"
-     {
-      :font-size  (em 1)
-      :color      (rgb 255 252 250)
-      :background (rgb 90 90 90)
-      :padding    (em 1)
-      :border     :none
-      }
-     ".sample" {
-                :background   (colours colour-index)
-                :width        (px 64)
-                :height       (px 64)
-                :border-width (px 1)
-                :border-color (rgb 200 200 200)
-                :border-style :solid
-                }
-     ".number" {
-                :font-size (em 4)
-                }
-     ".unit" {
-               :justify-self :start
-               :display :flex
-               :justify-content :center
-               :align-items :center
-               :min-width (em 2)
-               :border-radius (px 4)
-               :border [:solid (rgb 200 200 200) (px 1)]
-               :background (rgb 150 150 150)
-               :padding (em 0.1)
-             }
-     ".em" {:background (hsl 150 50 50) :color (hsl 150 20 10)}
-     ".px" {:background (hsl 10  70 80) :color (hsl 15  20 10)}
-     ".percent"  {:background (hsl 50  70 80) :color (hsl 15  20 10)}
-     ".fr"   {:background (hsl 200  70 80) :color (hsl 15  20 10)}
-     ".a-circle"
-     {
-      :fill   (rgb 20 255 100)
-      :stroke :none
-      }
-     ".circles"
-     {
-      :background :black
-      }
-     ".list" {
-               :display :flex
-               :flex-flow [:row :wrap]
-             }
-     ".little-layouts"
-     {
-      :padding (em 1)
-      :display               :grid
-      :grid-template-columns [(repeat 4 (fr 1))]
-      :grid-template-rows    [(repeat 4 (fr 1))]
-      :grid-column-gap       (em 2)
-      :grid-row-gap          (em 2)
-      :background            (rgb 50 50 50)
-      }
-     ".little-layout-content" {:background (rgb 20 20 20) :justify-self :center :grid-area :content :font-size (em 1) :color (rgb 255 250 240)}
-     ".l" {:background (rgb 255 0 0)    }
-     ".r" {:background (rgb 255 250 0)  }
-     ".t" {:background (rgb 20 140 255) }
-     ".b" {:background (rgb 30 255 100) }
-     ".tl" {:background (rgb 250 30 200) :grid-area :tl}
-     ".tr" {:background (rgb 250 30 200) :grid-area :tr}
-     ".bl" {:background (rgb 250 30 200) :grid-area :bl}
-     ".br" {:background (rgb 250 30 200) :grid-area :br}
-     ]]))
-
-(defn css-grid-view
-  "A tiny dynamic CSS rule just for the little table"
-  [rule]
-  [css-view
-    [
-      ".my-columns" rule
-    ]])
-
 (defn unit-view [{:keys [unit magnitude]}]
-  [:div {:class (str "unit " (if (= "%" (name unit)) "percent" (name unit)))} (str magnitude)])
+  [:div {:title (name unit) :class (str "unit " (if (= "%" (name unit)) "percent" (name unit)))} (str magnitude)])
 
 (defn listy-view
   "Returns a view to display a list of things"
@@ -207,7 +156,7 @@
   "Returns a view to display a table
    of the given map's key-value pairs"
   [a-map]
-  (into [:div.my-columns]
+  (into [:div.demo-grid]
     (mapcat
       (fn [[k v]]
        [[:div (str (name k))]
@@ -245,7 +194,7 @@
      (map
        (fn [x]
          (into [:div {:class (str "little-layout little-layout-" x)}
-           [:div.little-layout-content (str (+ i x))]
+           [:div.little-layout-content (str x)]
            [:div.tl] [:div.bl] [:div.tr] [:div.br]
            ] (map [[:div.l] [:div.r] [:div.t] [:div.b]] (map (fn [y] (mod (+ x y) 4)) (range 0 4)))))
        (range 0 n)))))
@@ -257,27 +206,27 @@
 
    We only pass the data each view needs
 
-   Each component has its own CSS
+   Each component has its own CSS where possible
   "
   ([] (root-view @actions/app-state))
-  ([{{i :x :as numbers}                                      :numbers
-     colours                                                 :colours
-     {grid-css :grid little-layout :little-layout :as rules} :css}]
+  ([{{x :x :as numbers}                                      :numbers
+     {grid-css :.demo-grid little-layout :little-layout units :units :as css-rules} :css}]
      [:div.root
-       [css-root-view rules]
+       [css-view {:vendors ["webkit" "moz"] :auto-prefix #{:column-width :user-select}} css-rules [:body :.main :.button]]
        [:div.main
-        [css-things-view numbers colours]
+        [css-view {} units [:.unit :.em :.px :.percent :.fr]]
+        [css-things-view]
         [:div.button {:title "reinitialize everything!" :on-click (fn [e] (actions/handle-message! {:clicked :reinitialize}))} "🌅"]
         [:div.things
           [:div.input
-            [input-unit-view {:unit px :min 0 :max 32 :step 1 :path [:css :grid :border-radius] :value (get-in grid-css [:border-radius])}]
-            [input-unit-view {:unit percent :min 5 :max 50 :step 1 :path [:css :grid :grid-template-columns 0 0] :value (get-in grid-css [:grid-template-columns 0 0])}]
-            [input-unit-view {:unit em :min 0.3 :max 4 :step 0.1 :path [:css :grid :grid-row-gap] :value (:grid-row-gap grid-css)}]
-            [input-number-view {:min 0 :max 255 :step 1 :title "Hue" :path [:css :grid :background :hue] :value (get-in grid-css [:background :hue])}]
+            [input-unit-view {:unit px :min 0 :max 32 :step 1 :path [:css :.demo-grid :border-radius] :value (get-in grid-css [:border-radius])}]
+            [input-unit-view {:unit percent :min 5 :max 50 :step 1 :path [:css :.demo-grid :grid-template-columns 0 0] :value (get-in grid-css [:grid-template-columns 0 0])}]
+            [input-unit-view {:unit em :min 0.3 :max 4 :step 0.1 :path [:css :.demo-grid :grid-row-gap] :value (:grid-row-gap grid-css)}]
+            [input-number-view {:min 0 :max 255 :step 1 :title "Hue" :path [:css :.demo-grid :background :hue] :value (get-in grid-css [:background :hue])}]
             ]
             [:div.thing.grid-demo
-              [css-grid-view grid-css]
+              [css-view {} [:.demo-grid grid-css]]
               [table-view grid-css]]
-          [input-unit-view {:unit percent :min 3 :max 20 :step 1 :path [:css :little-layout :grid-template-columns 0 1] :value (get-in rules [:little-layout :grid-template-columns 0 1])}]
-          [little-layouts-view little-layout i 16]]
+          [input-unit-view {:unit percent :min 3 :max 20 :step 1 :path [:css :little-layout :grid-template-columns 0 1] :value (get-in css-rules [:little-layout :grid-template-columns 0 1])}]
+          [little-layouts-view little-layout x 16]]
           ]]))

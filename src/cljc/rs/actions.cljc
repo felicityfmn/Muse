@@ -43,54 +43,11 @@
             {
              :x {:min 3 :max 33 :step 3}
              }
-      :css
-            {
-             :main
-             {
-              :background            (rgb 70 70 70)
-              :color                 (rgb 255 250 210)
-              :width                 (percent 100)
-              :height                (percent 100)
-              :display               :grid
-              :grid-template-columns [[(em 2) (fr 1) (em 2)]]
-              :grid-template-rows    :auto
-              :grid-column-gap       (em 1)
-              :grid-row-gap          (em 2)
-              :grid-template-areas   (strs '[[tl t tr]
-                                             [l content r]
-                                             [bl b br]])
-              }
-             :little-layout
-             {
-              :background            (rgb 40 40 40)
-              :color                 (rgb 255 250 210)
-              :width                 (percent 100)
-              :height                (percent 100)
-              :display               :grid
-              :grid-template-columns [[(fr 1) (percent 10) (fr 2)]]
-              :grid-template-rows    [[(em 1) (fr 1) (em 1)]]
-              :grid-column-gap       (em 0.3)
-              :grid-row-gap          (em 0.3)
-              :grid-template-areas   (strs '[[tl   t   tr]
-                                             [l content r]
-                                             [bl   b   br]])
-              }
-             :grid
-             {
-              :padding (em 1)
-              :border-radius (px 8)
-              :display               :grid
-              :background            (hsl 197 31 49)
-              :grid-template-columns [[(percent 20) (fr 1)]]
-              :grid-auto-rows        (em 1.3)
-              :grid-row-gap          (em 1)
-              :grid-column-gap       (em 1)
-              }
-             }
       }))
     ([state]
       (-> state
-        add-colours)))
+        add-colours
+        css/add-rules)))
 
 (defn initialize-state
   ([state message]
