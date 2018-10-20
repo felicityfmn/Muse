@@ -25,28 +25,46 @@
     [:style {:type "text/css" :scoped true}
      (css flags (map vec (partition 2 rules)))]))
 
+(defn range-styles []
+  (map (juxt first (comp (partial merge {
+      :appearance :none
+      :background :green
+    }) last))
+    [
+      ["input[type=range]::-moz-range-thumb"
+       {
+         :background :blue
+       }]
+      ["input[type=range]::-webkit-slider-thumb"
+       {
+         :margin-top (px 0)
+         :background :red
+       }]
+    ]))
+
 (defn css-root-view
   "
     Returns static CSS for the whole page
   "
   ([{main :main}]
-    [css-view {:vendors ["webkit" "moz"] :auto-prefix #{:column-width :user-select :appearance}}
-     [
-      "body" {
-              :margin      0
-              :padding     0
-              :background  (rgb 50 50 50)
-              :font-family ["Gill Sans" "Helvetica" "Verdana" "Sans Serif"]
-              :font-size   (em 1)
-              :font-weight :normal
-              :cursor      :default
-              }
-      ".main" main
-      ".button"
-      {
-       :cursor :pointer
-       }
-      ]]))
+    [css-view {:vendors ["webkit" "moz" "ms"]
+               :auto-prefix #{:column-width :user-select :appearance}}
+     (into [
+       "body" {
+               :margin      0
+               :padding     0
+               :background  (rgb 50 50 50)
+               :font-family ["Gill Sans" "Helvetica" "Verdana" "Sans Serif"]
+               :font-size   (em 1)
+               :font-weight :normal
+               :cursor      :default
+               }
+       ".main" main
+       ".button"
+       {
+        :cursor :pointer
+        }
+       ] (range-styles))]))
 
 (defn input-text-view
   "
@@ -104,7 +122,7 @@
      {
       :display               :grid
       :grid-area             :content
-      :grid-template-columns [[(percent 40) (percent 60)]]
+      :grid-template-columns [[(percent 20) (percent 80)]]
       :grid-column-gap       (em 1)
       :grid-auto-rows        :auto
       :grid-row-gap          (em 2.5)
@@ -131,6 +149,21 @@
      ".number" {
                 :font-size (em 4)
                 }
+     ".unit" {
+               :justify-self :start
+               :display :flex
+               :justify-content :center
+               :align-items :center
+               :min-width (em 2)
+               :border-radius (px 4)
+               :border [:solid (rgb 200 200 200) (px 1)]
+               :background (rgb 150 150 150)
+               :padding (em 0.1)
+             }
+     ".em" {:background (hsl 150 50 50) :color (hsl 150 20 10)}
+     ".px" {:background (hsl 10  70 80) :color (hsl 15  20 10)}
+     ".percent"  {:background (hsl 50  70 80) :color (hsl 15  20 10)}
+     ".fr"   {:background (hsl 200  70 80) :color (hsl 15  20 10)}
      ".a-circle"
      {
       :fill   (rgb 20 255 100)
@@ -173,6 +206,9 @@
       ".my-columns" rule
     ]])
 
+(defn unit-view [{:keys [unit magnitude]}]
+  [:div {:class (str "unit " (if (= "%" (name unit)) "percent" (name unit)))} (str magnitude)])
+
 (defn listy-view
   "Returns a view to display a list of things"
   [a-list]
@@ -181,7 +217,7 @@
       (fn [v]
         [:div
          (cond
-           (:magnitude v) (str "(" (name (:unit v)) " " (:magnitude v) ")")
+           (:magnitude v) [unit-view v]
            (:hue v)       (str "(hsl " (string/join " " [(:hue v) (:saturation v) (:lightness v)]) ")")
            (seqable? v)   [listy-view v]
            :otherwise     (str v))])
@@ -194,13 +230,12 @@
   (into [:div.my-columns]
     (mapcat
       (fn [[k v]]
-       [[:div (str k)]
-        [:div
-          (cond
-            (:magnitude v) (str "(" (name (:unit v))  " " (:magnitude v) ")")
-            (:hue v)       (str "(hsl " (string/join " " [(:hue v) (:saturation v) (:lightness v)]) ")")
-            (seqable? v)   [listy-view v]
-            :otherwise     (str v))]
+       [[:div (str (name k))]
+        (cond
+          (:magnitude v) [unit-view v]
+          (:hue v) [:div (str "(hsl " (string/join " " [(:hue v) (:saturation v) (:lightness v)]) ")")]
+          (seqable? v) [:div [listy-view v]]
+          :otherwise [:div (str v)])
         ])
       a-map)))
 
