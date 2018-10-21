@@ -210,7 +210,7 @@
   "
   ([] (root-view @actions/app-state))
   ([{{x :x :as numbers}                                      :numbers
-     {grid-css :.demo-grid little-layout :little-layout units :units :as css-rules} :css}]
+     {grid-css :.demo-grid little-layout :little-layout units :units :as css-rules} :css :as s}]
      [:div.root
        [css-view {:vendors ["webkit" "moz"] :auto-prefix #{:column-width :user-select}} css-rules [:body :.main :.button]]
        [:div.main
@@ -228,5 +228,4 @@
               [css-view {} [:.demo-grid grid-css]]
               [table-view grid-css]]
           [input-unit-view {:unit percent :min 3 :max 20 :step 1 :path [:css :little-layout :grid-template-columns 0 1] :value (get-in css-rules [:little-layout :grid-template-columns 0 1])}]
-          [little-layouts-view little-layout x 16]]
-          ]]))
+          [little-layouts-view little-layout x 16]]]]))

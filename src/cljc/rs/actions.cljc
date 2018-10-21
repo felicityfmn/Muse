@@ -57,25 +57,27 @@
   ([state {value :value path :path :as message}]
     (assoc-in state path value)))
 
-(defn update!
-  "
-   This updates the application state using
-   the given function a-function and the given message
-  "
-  [a-function message]
-  (swap! app-state
-    (fn [current-state] (a-function current-state message))))
+(defn choose-function
+  "Work out what function to use for updating
+  state based on the given message"
+  ([{of-what-was-clicked-on :clicked :as msg}]
+   (case of-what-was-clicked-on
+     :reinitialize initialize-state
+     change-thing)))
+
+(defn handle-message
+  "Returns a new state from the given state and message"
+  [state message]
+  ((choose-function message) state message))
 
 (defn handle-message!
   "Maybe updates the app state with
   a function that depends on the given message"
-  ([{of-what-was-clicked-on :clicked :as msg}]
-   (handle-message! msg
-    (case of-what-was-clicked-on
-      :reinitialize initialize-state
-      change-thing)))
-  ([msg a-function]
-    (update! a-function msg)))
+  ([message]
+   (handle-message! message (choose-function message)))
+  ([message a-function]
+    (swap! app-state
+      (fn [current-state] (a-function current-state message)))))
 
 (defn animation! []
   #?(:cljs
