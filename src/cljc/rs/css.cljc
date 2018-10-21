@@ -1,7 +1,6 @@
 (ns rs.css
   "CSS things - extra functions and definitions for CSS
   and some CSS rules"
-  (:refer-clojure :exclude [repeat])
   (:require
     [garden.color :as color :refer [hsl rgb rgba hex->rgb as-hex]]
     [garden.units :as u :refer [defunit px percent pt em ms]]
@@ -17,8 +16,8 @@
 (defn strs
   "Returns a string representation of the given list of lists
   in a form suitable for grid-layout's grid-areas key, which needs
-  quoted lists - TODO: find a nicer way to do this using Garden
-  (I'm sure it's got a way built-in but I couldn't find it)"
+  quoted lists
+  (I'm sure Garden's got a built-in way of doing this but I couldn't find it)"
   [lists]
   (apply str
    (map (fn [x] (str "\"" (string/join " " x) "\"")) lists)))
@@ -36,7 +35,7 @@
                 :align-items     :center
                 :min-width       (em 2)
                 :border-radius   (px 4)
-                :border          [:solid (rgb 200 200 200) (px 1)]
+                :border          [[:solid (rgb 200 200 200) (px 1)]]
                 :background      (rgb 150 150 150)
                 :padding         (em 0.1)
                 }
