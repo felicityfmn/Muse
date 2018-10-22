@@ -234,7 +234,7 @@
      [:div.root
        [css-view {:vendors ["webkit" "moz"] :auto-prefix #{:column-width :user-select}} css-rules [:body :.main :.button]]
        [:div.main
-        [css-view {:vendors ["webkit" "moz"]} (animation-rules 3000)]
+        [css-view {:vendors ["webkit" "moz"]} (animation-rules (* 1000 (get-in css-rules [:little-layout :grid-template-columns 0 1 :magnitude])))]
         [css-view {} units [:.unit :.em :.px :.percent :.fr]]
         [css-things-view]
         [:div.button {:title "reinitialize everything!" :on-click (fn [e] (actions/handle-message! {:clicked :reinitialize}))} "🌅"]
