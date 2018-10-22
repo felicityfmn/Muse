@@ -1,6 +1,7 @@
 (ns rs.css
   "CSS things - extra functions and definitions for CSS
   and some CSS rules"
+  (:require-macros [garden.def :refer [defcssfn]])
   (:require
     [garden.color :as color :refer [hsl rgb rgba hex->rgb as-hex]]
     [garden.units :as u :refer [defunit px percent pt em ms]]
@@ -12,6 +13,11 @@
 ; but it provides the defunit macro to create new units
 ; so let's define it
 (defunit fr)
+
+(defunit rad)
+
+(defcssfn rotate)
+(defcssfn translate)
 
 (defn strs
   "Returns a string representation of the given list of lists

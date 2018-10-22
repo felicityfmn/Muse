@@ -8,8 +8,9 @@
     [garden.core :as gc :refer [css]]
     [garden.color :as color :refer [hsl rgb rgba hex->rgb as-hex]]
     [garden.units :as u :refer [px pt em ms percent defunit]]
+    [garden.types :as gt]
     [garden.compression :refer [compress-stylesheet]]
-    [rs.css :as rcss :refer [fr strs]]
+    [rs.css :as rcss :refer [fr rad rotate strs]]
     [rs.actions :as actions]
     [clojure.string :as string]))
 
@@ -23,10 +24,29 @@
     (css-view {} rules))
   ([flags rules]
     [:style {:type "text/css" :scoped true}
-     (css flags (map vec (partition 2 rules)))])
+     (css flags
+      (mapcat
+        (fn [[f & _ :as l]] (if (or (symbol? f) (string? f) (keyword? f)) (map vec (partition 2 l)) l))
+        (partition-by :identifier rules)))])
   ([flags css-rule-map keyz]
     [:style {:type "text/css" :scoped true}
      (css flags (map (juxt identity css-rule-map) keyz))]))
+
+(defn animation-rules [duration-ms]
+  [
+    (gt/->CSSAtRule :keyframes
+       {:identifier :rotating-thing
+        :frames     [
+                     [:0%     {:transform (rotate (rad 0))         :opacity 0.3}]
+                     [:50%    {:transform (rotate (rad 3.1415926)) :opacity 1}]
+                     [:100%   {:transform (rotate (rad 6.266))     :opacity 0.3}]]})
+    :.rotating
+      {:animation-name            :rotating-thing
+       :animation-duration        (ms duration-ms)
+       :animation-iteration-count :infinite
+       :animation-timing-function :linear}
+  ])
+
 
 (defn css-things-view
   "Some static CSS rules for the table-of-things view"
@@ -193,7 +213,7 @@
             (range 0 n)))]]
      (map
        (fn [x]
-         (into [:div {:class (str "little-layout little-layout-" x)}
+         (into [:div {:class (str "little-layout rotating little-layout-" x)}
            [:div.little-layout-content (str (+ x i))]
            [:div.tl] [:div.bl] [:div.tr] [:div.br]
            ] (map [[:div.l] [:div.r] [:div.t] [:div.b]] (map (fn [y] (mod (+ x y) 4)) (range 0 4)))))
@@ -214,6 +234,7 @@
      [:div.root
        [css-view {:vendors ["webkit" "moz"] :auto-prefix #{:column-width :user-select}} css-rules [:body :.main :.button]]
        [:div.main
+        [css-view {:vendors ["webkit" "moz"]} (animation-rules 3000)]
         [css-view {} units [:.unit :.em :.px :.percent :.fr]]
         [css-things-view]
         [:div.button {:title "reinitialize everything!" :on-click (fn [e] (actions/handle-message! {:clicked :reinitialize}))} "🌅"]
