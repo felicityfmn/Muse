@@ -10,9 +10,29 @@
     [garden.units :as u :refer [px pt em ms percent defunit]]
     [garden.types :as gt]
     [garden.compression :refer [compress-stylesheet]]
-    [rs.css :as rcss :refer [fr rad rotate strs]]
+    [rs.css :as rcss :refer [fr rad rotate3d perspective translate strs]]
     [rs.actions :as actions]
     [clojure.string :as string]))
+
+
+(defn named? [x]
+  (or (keyword? x) (symbol? x)))
+
+(defn as-str [x]
+  (if (named? x)
+    (name x)
+    x))
+
+(defn sassify-rule [[parent-selector {children :& :as rule}]]
+  (if children
+    [parent-selector (dissoc rule :&)
+      (map (fn [[child-selector child-rule]]
+             (sassify-rule [(str (if (keyword? child-selector)
+                      (if (namespace child-selector) "&::" "&:")
+                      "&") (as-str child-selector))
+               child-rule]))
+        children)]
+     [parent-selector rule]))
 
 (defn css-view
   "
@@ -21,38 +41,71 @@
     and optional flags
   "
   ([rules]
-    (css-view {} rules))
+    (css-view nil {} rules))
   ([flags rules]
-    [:style {:type "text/css" :scoped true}
+    (css-view nil flags rules))
+  ([id flags rules]
+    [:style (if id {:type "text/css" :id id} {:type "text/css"})
      (css flags
       (mapcat
-        (fn [[f & _ :as l]] (if (or (symbol? f) (string? f) (keyword? f)) (map vec (partition 2 l)) l))
+        (fn [[f & _ :as l]]
+          (if (or (string? f) (named? f))
+            (map sassify-rule (partition 2 l)) l))
         (partition-by :identifier rules)))])
-  ([flags css-rule-map keyz]
-    [:style {:type "text/css" :scoped true}
-     (css flags (map (juxt identity css-rule-map) keyz))]))
+  ([id flags css-rule-map keyz]
+    [:style (if id {:type "text/css" :id id} {:type "text/css"})
+     (css flags (map (comp sassify-rule (juxt identity css-rule-map)) keyz))]))
 
 (defn animation-rules [duration-ms]
-  [
-    (gt/->CSSAtRule :keyframes
-       {:identifier :rotating-thing
-        :frames     [
-                     [:0%     {:transform (rotate (rad 0))         :opacity 0.3}]
-                     [:50%    {:transform (rotate (rad 3.1415926)) :opacity 1}]
-                     [:100%   {:transform (rotate (rad 6.266))     :opacity 0.3}]]})
-    :.rotating
-      {:animation-name            :rotating-thing
+  (mapcat
+    (fn [i v]
+     [
+      (gt/CSSAtRule. :keyframes
+        {:identifier (str "rotating-thing-" i)
+         :frames     [
+                      [:0% {:transform (apply rotate3d (conj v (rad 0))) :opacity 1}]
+                      [:50% {:transform (apply rotate3d (conj v (rad 3.1415926))) :opacity 0.3}]
+                      [:100% {:transform (apply rotate3d (conj v (rad 6.266))) :opacity 1}]]})
+      (str ".rotating-" i)
+      {:animation-name            (str "rotating-thing-" i)
        :animation-duration        (ms duration-ms)
        :animation-iteration-count :infinite
        :animation-timing-function :linear}
-  ])
+      ])
+      (range) (map (fn [x] [(Math/sin x) (Math/cos x) 0.3]) (range 0 6.2 (/ 1 16)))))
 
 
 (defn css-things-view
   "Some static CSS rules for the table-of-things view"
   ([]
-   [css-view
+   [css-view :things {}
     [
+     "input[type=range]"
+     {
+      :background :red
+      :&
+        {
+         :hover
+          {
+            :background :green
+          }
+         ::-moz-range-thumb
+         {
+           :background :blue
+           :&
+           {
+            " arse"
+            {
+              :background :orange
+            }
+           }
+         }
+         ::-webkit-slider-thumb
+         {
+          :background :yellow
+         }
+        }
+      }
      ".things"
        {
         :display               'grid
@@ -88,6 +141,7 @@
              }
      :.little-layouts
      {
+      :perspective           (px 2000)
       :padding (em 1)
       :display               :grid
       :grid-template-columns [(repeat 4 (fr 1))]
@@ -207,13 +261,15 @@
           (mapcat
             (fn [x]
               [(str ".little-layout-" x)
-               {:grid-template-columns
+               {
+                :perspective (px 1000)
+                :grid-template-columns
                 (update-in (get little-layout-rule :grid-template-columns) [0 1]
                   (fn [{p :magnitude}] (percent (min 100 (+ p (* 0.3 (Math/pow x 2)))))))}])
             (range 0 n)))]]
-     (map
-       (fn [x]
-         (into [:div {:class (str "little-layout rotating little-layout-" x)}
+     (map-indexed
+       (fn [i x]
+         (into [:div {:class (str "little-layout little-layout-" x " rotating-" i)}
            [:div.little-layout-content (str (+ x i))]
            [:div.tl] [:div.bl] [:div.tr] [:div.br]
            ] (map [[:div.l] [:div.r] [:div.t] [:div.b]] (map (fn [y] (mod (+ x y) 4)) (range 0 4)))))
@@ -232,10 +288,10 @@
   ([{{x :x :as numbers}                                      :numbers
      {grid-css :.demo-grid little-layout :little-layout units :units :as css-rules} :css :as s}]
      [:div.root
-       [css-view {:vendors ["webkit" "moz"] :auto-prefix #{:column-width :user-select}} css-rules [:body :.main :.button]]
+       [css-view :main {:vendors ["webkit" "moz"] :auto-prefix #{:column-width :user-select}} css-rules [:body :.main :.button]]
        [:div.main
-        [css-view {:vendors ["webkit" "moz"]} (animation-rules (* 1000 (get-in css-rules [:little-layout :grid-template-columns 0 1 :magnitude])))]
-        [css-view {} units [:.unit :.em :.px :.percent :.fr]]
+        [css-view :animation {:vendors ["webkit" "moz"]} (animation-rules (* 1000 (get-in css-rules [:little-layout :grid-template-columns 0 1 :magnitude])))]
+        [css-view :units {} units [:.unit :.em :.px :.percent :.fr]]
         [css-things-view]
         [:div.button {:title "reinitialize everything!" :on-click (fn [e] (actions/handle-message! {:clicked :reinitialize}))} "🌅"]
         [:div.things
@@ -246,7 +302,7 @@
             [input-number-view {:min 0 :max 255 :step 1 :title "Hue" :path [:css :.demo-grid :background :hue] :value (get-in grid-css [:background :hue])}]
             ]
             [:div.thing.grid-demo
-              [css-view {} [:.demo-grid grid-css]]
+              [css-view :grid {} [:.demo-grid grid-css]]
               [table-view grid-css]]
           [input-unit-view {:unit percent :min 3 :max 20 :step 1 :path [:css :little-layout :grid-template-columns 0 1] :value (get-in css-rules [:little-layout :grid-template-columns 0 1])}]
           [little-layouts-view little-layout x 16]]]]))

@@ -1,23 +1,28 @@
 (ns rs.css
   "CSS things - extra functions and definitions for CSS
   and some CSS rules"
-  (:require-macros [garden.def :refer [defcssfn]])
   (:require
     [garden.color :as color :refer [hsl rgb rgba hex->rgb as-hex]]
     [garden.units :as u :refer [defunit px percent pt em ms]]
     [garden.core :refer [css]]
+    [garden.types :as gt]
     [garden.stylesheet :refer [at-media]]
     [clojure.string :as string]))
 
 ; Garden doesn't have grid-layout's fr unit by default,
-; but it provides the defunit macro to create new units
+; but it provides the defunit macro to  create new units
 ; so let's define it
 (defunit fr)
-
 (defunit rad)
+(defunit deg)
 
-(defcssfn rotate)
-(defcssfn translate)
+(defn rotate [& d] (gt/CSSFunction. "rotate" d))
+(defn translate [& d] (gt/CSSFunction. "translate" d))
+(defn scale [& d] (gt/CSSFunction. "scale" d))
+(defn translate3d [& d] (gt/CSSFunction. "translate3d" d))
+(defn scale3d [& d] (gt/CSSFunction. "scale3d" d))
+(defn rotate3d [& d] (gt/CSSFunction. "rotate3d" d))
+(defn perspective [& d] (gt/CSSFunction. "perspective" d))
 
 (defn strs
   "Returns a string representation of the given list of lists
