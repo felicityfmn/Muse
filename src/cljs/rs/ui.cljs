@@ -15,6 +15,8 @@
   (when (nil? @actions/app-state)
     (do
       (reset! actions/app-state (actions/make-state))
-      (actions/animation!)))
+
+
+      ))
   (r/render [views/root-view]
      (.getElementById js/document "app")))

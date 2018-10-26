@@ -23,107 +23,72 @@
 ; as Clojurescript or a normal Clojure atom if this
 ; is running in Clojure
 (defonce app-state
-  #?(:cljs (ra/atom nil) :clj (atom nil)))
+         #?(:cljs (ra/atom nil) :clj (atom nil)))
 
-(defn add-colours [state]
-  (assoc state :colours ["red" "green" "black" "orange" "blue" "purple" "cyan" "yellow"]))
 
 (defn make-state
   ([]
    (make-state
      {
-      :text "Hello world!"
-      :numbers
-            {
-             :x            7
-             :circles      3
-             :colour-index 0
-             }
-      :ranges
-            {
-             :x {:min 3 :max 33 :step 3}
-             }
-      :css
-            {
-             :main
-             {
-              :background            (rgb 70 70 70)
-              :color                 (rgb 255 250 210)
-              :width                 (percent 100)
-              :height                (percent 100)
-              :display               :grid
-              :grid-template-columns [[(em 2) (fr 1) (em 2)]]
-              :grid-template-rows    :auto
-              :grid-column-gap       (em 1)
-              :grid-row-gap          (em 2)
-              :grid-template-areas   (strs '[[tl t tr]
-                                             [l content r]
-                                             [bl b br]])
-              }
-             :little-layout
-             {
-              :background            (rgb 40 40 40)
-              :color                 (rgb 255 250 210)
-              :width                 (percent 100)
-              :height                (percent 100)
-              :display               :grid
-              :grid-template-columns [[(fr 1) (percent 10) (fr 2)]]
-              :grid-template-rows    [[(em 1) (fr 1) (em 1)]]
-              :grid-column-gap       (em 0.3)
-              :grid-row-gap          (em 0.3)
-              :grid-template-areas   (strs '[[tl   t   tr]
-                                             [l content r]
-                                             [bl   b   br]])
-              }
-             :grid
-             {
-              :padding (em 1)
-              :border-radius (px 8)
-              :display               :grid
-              :background            (hsl 197 31 49)
-              :grid-template-columns [[(percent 20) (fr 1)]]
-              :grid-auto-rows        (em 1.3)
-              :grid-row-gap          (em 1)
-              :grid-column-gap       (em 1)
-              }
-             }
+      ;These are the parameters of the canvas that the sliders manipulate: they take canvas rules, and pick out the parameters
+      :slider-parameters
+      [
+       {:unit px :min 0 :max 10 :step 1 :path [:canvas-rules "#canvas" :border 0 0]}
+       {:min 0 :max 360 :step 1 :path
+             [:canvas-rules "#canvas" :background :hue]}
+       {:unit em :min 0 :max 5 :step 0.2 :path
+              [:canvas-rules "#canvas" :border-radius]}
+
+       ;{:unit px :min 0 :max 50 :step 0.5 :path
+       ;       [:canvas-rules "#demo-button" :box-shadow ::blur]}
+       ]
+      :slider-button-parameters
+      [
+       {:min 0 :max 360 :step 1 :path
+             [:canvas-rules "#demo-button" :background :hue]}
+       {:unit px :min 0 :max 50 :step 0.5 :path
+              [:canvas-rules "#demo-button" :border-radius]}
+       {:unit pt :min 11 :max 20 :step 0.5 :path
+              [:canvas-rules "#demo-button" :font-size]}
+       ]
+
+      :input-text
+      {:text "Button text"}
+
+
       }))
-    ([state]
-      (-> state
-        add-colours)))
+  ([state]
+   (-> state
+       css/add-rules
+       css/add-canvas-rules)))
 
 (defn initialize-state
   ([state message]
-    (make-state)))
+   (make-state)))
 
 (defn change-thing
   ([state {value :value path :path :as message}]
-    (assoc-in state path value)))
+   (assoc-in state path value)))
 
-(defn update!
-  "
-   This updates the application state using
-   the given function a-function and the given message
-  "
-  [a-function message]
-  (swap! app-state
-    (fn [current-state] (a-function current-state message))))
+(defn choose-function
+  "Work out what function to use for updating
+  state based on the given message"
+  ([{of-what-was-clicked-on :clicked :as msg}]
+   (case of-what-was-clicked-on
+     :reinitialize initialize-state
+     change-thing)))
+
+(defn handle-message
+  "Returns a new state from the given state and message"
+  [state message]
+  ((choose-function message) state message))
 
 (defn handle-message!
   "Maybe updates the app state with
   a function that depends on the given message"
-  ([{of-what-was-clicked-on :clicked :as msg}]
-   (handle-message! msg
-    (case of-what-was-clicked-on
-      :reinitialize initialize-state
-      change-thing)))
-  ([msg a-function]
-    (update! a-function msg)))
+  ([message]
+   (handle-message! message (choose-function message)))
+  ([message a-function]
+   (swap! app-state
+          (fn [current-state] (a-function current-state message)))))
 
-(defn animation! []
-  #?(:cljs
-     (.requestAnimationFrame js/window
-      (fn []
-        (swap! app-state (fn [s] (update-in s [:numbers :x] (fn [y] (mod (inc y) 255)))))
-        (animation!)))
-      :clj :no-animation-available-in-normal-Clojure))
