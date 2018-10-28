@@ -25,29 +25,18 @@
 (defonce app-state
   #?(:cljs (ra/atom nil) :clj (atom nil)))
 
-(defn add-colours [state]
-  (assoc state :colours ["red" "green" "black" "orange" "blue" "purple" "cyan" "yellow"]))
 
 (defn make-state
   ([]
    (make-state
      {
-      :text "Hello world!"
-      :numbers
-            {
-             :x            7
-             :circles      3
-             :colour-index 0
-             }
-      :ranges
-            {
-             :x {:min 3 :max 33 :step 3}
-             }
+
       }))
     ([state]
       (-> state
-        add-colours
-        css/add-rules)))
+        css/add-main-rules
+        css/add-units-rules
+        css/add-grid-rules)))
 
 (defn initialize-state
   ([state message]
@@ -78,11 +67,3 @@
   ([message a-function]
     (swap! app-state
       (fn [current-state] (a-function current-state message)))))
-
-(defn animation! []
-  #?(:cljs
-     (.requestAnimationFrame js/window
-      (fn []
-        (swap! app-state (fn [s] (update-in s [:numbers :x] (fn [y] (mod (inc y) 255)))))
-        (animation!)))
-      :clj :no-animation-available-in-normal-Clojure))
