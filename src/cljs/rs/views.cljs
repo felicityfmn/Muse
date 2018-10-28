@@ -114,6 +114,15 @@
         ])
       a-map)))
 
+(defn params-view [params]
+  (into [:div.params
+    (map (fn [{unit :unit path :path :as parameter}]
+      (cond
+        unit       [input-unit-view parameter]
+        :otherwise [input-number-view parameter]))
+      params)
+    ]))
+
 (defn root-view
   "
    Returns a view component for
@@ -124,19 +133,14 @@
    Each component has its own CSS where possible
   "
   ([] (root-view @actions/app-state))
-  ([{{:keys [main demo units] :as css-rules} :css :as s}]
+  ([{{:keys [main demo units] :as css-rules} :css parameters :parameters :as state}]
      [:div.root
        [css-view :main {:vendors ["webkit" "moz"] :auto-prefix #{:column-width :user-select}} main]
        [:div.main
         [css-view :units {} units]
         [:div.button {:title "reinitialize everything!" :on-click (fn [e] (actions/handle-message! {:clicked :reinitialize}))} "🌅"]
         [:div.things
-          [:div.input
-            [input-unit-view {:unit px :min 0 :max 32 :step 1 :path [:css :demo :.demo-grid :border-radius] :value (get-in demo [:.demo-grid :border-radius])}]
-            [input-unit-view {:unit percent :min 5 :max 50 :step 1 :path [:css :demo :.demo-grid :grid-template-columns 0 0] :value (get-in demo [:.demo-grid :grid-template-columns 0 0])}]
-            [input-unit-view {:unit em :min 0.3 :max 4 :step 0.1 :path [:css :demo :.demo-grid :grid-row-gap] :value (get-in demo [:.demo-grid :grid-row-gap])}]
-            [input-number-view {:min 0 :max 255 :step 1 :title "Hue" :path [:css :demo :.demo-grid :background :hue] :value (get-in demo [:.demo-grid :background :hue])}]
-            ]
-            [:div.thing
-              [css-view :demo {} demo]
-              [table-view (get demo :.demo-grid)]]]]]))
+          [params-view (map (fn [{path :path :as p}] (assoc p :value (get-in state path))) parameters)]
+          [:div.thing
+            [css-view :demo {} demo]
+            [table-view (get demo :.demo-grid)]]]]]))
