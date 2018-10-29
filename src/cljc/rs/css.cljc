@@ -1,9 +1,6 @@
 (ns rs.css
   "CSS things - extra functions and definitions for CSS
   and some CSS rules"
-
-  ;(:require-macros [garden.def :refer [defcssfn]])
-
   (:require
     [garden.color :as color :refer [hsl hsla rgb rgba hex->rgb as-hex]]
     [garden.units :as u :refer [defunit px percent pt em ms]]
@@ -35,11 +32,6 @@
 (defn perspective [& d] (gt/->CSSFunction "perspective" d))
 
 
-(defunit rad)
-
-;(defcssfn rotate)
-;(defcssfn translate)
-
 (defn strs
   "Returns a string representation of the given list of lists
   in a form suitable for grid-layout's grid-areas key, which needs
@@ -47,10 +39,7 @@
   (I'm sure Garden's got a built-in way of doing this but I couldn't find it)"
   [lists]
   (apply str
-
-         (map (fn [x] (str "\"" (string/join " " x) "\"")) lists)))
-
-   (map (fn [x] (str "\"" (string/join " " x) "\"")) lists)))
+    (map (fn [x] (str "\"" (string/join " " x) "\"")) lists)))
 
 (defn named? [x]
   (or (keyword? x) (symbol? x)))
@@ -78,7 +67,6 @@
 
 
 ; --- rules ---
-
 
 
 
@@ -117,14 +105,12 @@
                                  :text-shadow [[(px 1) (px 0.5) (px 0.5) (hsl 0 0 0)]]
                                  }
 
-              })
-
-      ))
+              })))
 
 
 
 (defn add-rules [state]
-  (assoc state :css
+  (assoc state :css-main-rules
                (->
                  {
                   :.main
@@ -178,7 +164,8 @@
 
                   }
                  )))
-=======
+
+
 (defn add-units-rules [state]
   (assoc-in state [:css :units]
     {:.unit    {
