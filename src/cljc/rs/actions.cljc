@@ -30,6 +30,7 @@
   ([]
    (make-state
      {
+
       ;These are the parameters of the canvas that the sliders manipulate: they take canvas rules, and pick out the parameters
       :slider-parameters
       [
@@ -62,6 +63,21 @@
        css/add-rules
        css/add-canvas-rules)))
 
+      :parameters
+      [
+         {:unit px :min 0 :max 32 :step 1 :path [:css :demo :.demo-grid :border-radius]}
+         {:unit percent :min 5 :max 50 :step 1 :path [:css :demo :.demo-grid :grid-template-columns 0 0]}
+         {:unit em :min 0.3 :max 4 :step 0.1 :path [:css :demo :.demo-grid :grid-row-gap]}
+         {:min 0 :max 255 :step 1 :title "Hue" :path [:css :demo :.demo-grid :background :hue]}
+       ]
+      }))
+    ([state]
+      (-> state
+        css/add-main-rules
+        css/add-units-rules
+        css/add-grid-rules)))
+
+
 (defn initialize-state
   ([state message]
    (make-state)))
@@ -89,6 +105,11 @@
   ([message]
    (handle-message! message (choose-function message)))
   ([message a-function]
+
    (swap! app-state
           (fn [current-state] (a-function current-state message)))))
+
+
+    (swap! app-state
+      (fn [current-state] (a-function current-state message)))))
 

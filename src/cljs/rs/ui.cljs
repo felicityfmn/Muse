@@ -17,6 +17,11 @@
       (reset! actions/app-state (actions/make-state))
 
 
+
+
+      ; comment this line to stop animation
+      ;(actions/animation!)
+
       ))
   (r/render [views/root-view]
      (.getElementById js/document "app")))
