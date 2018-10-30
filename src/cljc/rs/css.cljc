@@ -52,7 +52,7 @@
 (defn sassify-rule
   "Recurses through the given vector's second element
    which represents a CSS rule, transforming any child rules
-   at the :& key into a form that Garden will compile like SASS"
+   at the :& key into a form that  Garden will compile like SASS"
   [[parent-selector {children :& :as rule}]]
   (if children
     [parent-selector (dissoc rule :&)
@@ -83,7 +83,6 @@
                                  :width         (percent 90)
                                  :height        (px 500)
                                  :display       "table"
-
                                  }
               "#button-wrapper" {
                                  :display        "table-cell"
@@ -104,9 +103,7 @@
                                  :text-align    "center"
                                  :text-shadow [[(px 1) (px 0.5) (px 0.5) (hsl 0 0 0)]]
                                  }
-
               })))
-
 
 
 (defn add-rules [state]
@@ -132,7 +129,18 @@
                                            :background    (hsl 137 96 80)
 
                                            }
-                  :body                   {
+                    ".things"
+                   {
+                    :display               'grid
+                    :grid-area             :content
+                    :grid-template-columns [[(percent 20) (percent 80)]]
+                    :grid-column-gap       (em 1)
+                    :grid-auto-rows        :auto
+                    :grid-row-gap          (em 2.5)
+                    :background            (rgb 200 205 210)
+                    :padding               (percent 4)
+                    }
+                            :body                   {
                                            :background  "linear-gradient( to top, grey, white )"
                                            :margin      (percent 1)
                                            :font-family ["Gill Sans" "Helvetica" "Verdana" "Sans Serif"]
@@ -150,7 +158,7 @@
                                            }
                   ".button-refresh:hover" {}
                   "#text-demo"            {
-                                           :color (hsl 20 30 10)
+                                           :color (hsl 20 30 90)
 
                                            }
                   :div.canvas-parameters  {

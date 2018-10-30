@@ -69,9 +69,32 @@
   ([state message]
    (make-state)))
 
+(defn colour-coupling
+  "makes sure the background color of the canvas is always complimentary to the background colour of the button"
+  [hue lightness]
+  [(mod (+ 180 hue) 360) (mod (+ 30 lightness) 100)])
+
+(defn update-colours
+  [
+    {
+      {
+       {{h :hue l :lightness} :background} "#canvas"
+        button "#demo-button"
+      } :canvas-rules
+      :as state
+    }
+  ]
+  (update-in state [:canvas-rules "#demo-button" :background]
+    (fn [colour]
+      (let [[nh nl] (colour-coupling h l)]
+        (assoc colour :hue nh :lightness nl)))))
+
 (defn change-thing
   ([state {value :value path :path :as message}]
-   (assoc-in state path value)))
+   (if (= path [:canvas-rules "#canvas" :background :hue])
+     (update-colours
+      (assoc-in state path value))
+      (assoc-in state path value))))
 
 (defn choose-function
   "Work out what function to use for updating

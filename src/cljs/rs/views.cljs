@@ -179,12 +179,12 @@
      {t :text}                :input-text
      :as                      state}]
    [:div.root
-    [css-view :main {:vendors ["webkit" "moz"] :auto-prefix #{:column-width :user-select}} main-rules]
+    [css-view :main-rules {:vendors ["webkit" "moz"] :auto-prefix #{:column-width :user-select}} main-rules]
     [:div.main
      [:div.button {:title "reinitialize everything!" :on-click (fn [e] (actions/handle-message! {:clicked :reinitialize}))} "🔄"]
      [:div.things
       [:div.canvas-parameters "Canvas settings"
-       [css-view :canvas {:vendors ["webkit" "moz" "o" "ms"] :auto-prefix #{:appearance}} canvas-rules]
+       [css-view :canvas-rules {:vendors ["webkit" "moz" "o" "ms"] :auto-prefix #{:appearance}} canvas-rules]
        [sliders-view (map (fn [{path :path :as parameter}] (assoc parameter :value (get-in state path))) slider-parameters)]
        ]
       [:div {:id "canvas"}
