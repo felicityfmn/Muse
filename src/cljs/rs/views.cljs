@@ -176,10 +176,12 @@
      slider-button-parameters :slider-button-parameters
      main-rules               :css-main-rules
      canvas-rules             :canvas-rules
+     animation-rules          :animation-rules
      {t :text}                :input-text
      :as                      state}]
    [:div.root
     [css-view :main-rules {:vendors ["webkit" "moz"] :auto-prefix #{:column-width :user-select}} main-rules]
+    [css-view :animation-rules {} animation-rules]
     [:div.main
      [:div.button {:title "reinitialize everything!" :on-click (fn [e] (actions/handle-message! {:clicked :reinitialize}))} "🔄"]
      [:div.things

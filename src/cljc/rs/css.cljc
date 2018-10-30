@@ -30,7 +30,7 @@
 (defn scale3d [& d]     (gt/->CSSFunction "scale3d" d))
 (defn rotate3d [& d]    (gt/->CSSFunction "rotate3d" d))
 (defn perspective [& d] (gt/->CSSFunction "perspective" d))
-
+(defn linear-gradient [& d] (gt/->CSSFunction "linear-gradient" d))
 
 (defn strs
   "Returns a string representation of the given list of lists
@@ -112,7 +112,7 @@
                  {
                   :.main
                                           {
-                                           :background  "linear-gradient( to bottom, rgba( 216, 215, 215, 0.3 ), white )"
+                                           :background  (linear-gradient "to bottom" (rgba 216, 215, 215, 0.3) :blue)
                                            :text-shadow [[(px 0) (px 0) (px 3) (hsl 0 0 0)] [(px 1) (px 0) (px 1) (hsl 65 49 67)]]
                                            :color       (hsl 0 0 100)
                                            :width       (percent 100)
@@ -129,25 +129,29 @@
                                            :background    (hsl 137 96 80)
 
                                            }
-                    ".things"
-                   {
-                    :display               'grid
-                    :grid-area             :content
-                    :grid-template-columns [[(percent 20) (percent 80)]]
-                    :grid-column-gap       (em 1)
-                    :grid-auto-rows        :auto
-                    :grid-row-gap          (em 2.5)
-                    :background            (rgb 200 205 210)
-                    :padding               (percent 4)
-                    }
-                            :body                   {
-                                           :background  "linear-gradient( to top, grey, white )"
-                                           :margin      (percent 1)
-                                           :font-family ["Gill Sans" "Helvetica" "Verdana" "Sans Serif"]
-                                           :font-size   (em 1)
-                                           :font-weight :normal
-                                           :cursor      :default
-                                           :zoom        0.8
+                  ".things"
+                                          {
+                                           :display               'grid
+                                           :grid-area             :content
+                                           :grid-template-columns [[(percent 20) (percent 80)]]
+                                           :grid-column-gap       (em 1)
+                                           :grid-auto-rows        :auto
+                                           :grid-row-gap          (em 2.5)
+                                           :background            (rgb 200 205 210)
+                                           :padding               (percent 4)
+                                           }
+                  :body                   {
+                                           :animation-name            :gradient-flow
+                                           :animation-duration        (ms 10000)
+                                           :animation-iteration-count :infinite
+                                           :animation-timing-function :linear
+                                           :background                (linear-gradient "to top" :gray :white)
+                                           :margin                    (percent 1)
+                                           :font-family               ["Gill Sans" "Helvetica" "Verdana" "Sans Serif"]
+                                           :font-size                 (em 1)
+                                           :font-weight               :normal
+                                           :cursor                    :default
+                                           :zoom                      0.8
                                            }
                   :.button                {
                                            :cursor      :pointer
@@ -194,22 +198,14 @@
 
 
 (defn animation-rules [duration-ms]
-  (mapcat
-    (fn [i v]
-     [
-      (gt/->CSSAtRule :keyframes
-        {:identifier (str "rotating-thing-" i)
-         :frames     [
-                      [:0%   {:transform (apply rotate3d (conj v (rad 0))) :opacity 1}]
-                      [:50%  {:transform (apply rotate3d (conj v (rad 3.1415926))) :opacity 0.3}]
-                      [:100% {:transform (apply rotate3d (conj v (rad 6.266))) :opacity 1}]]})
-      (str ".rotating-" i)
-      {:animation-name            (str "rotating-thing-" i)
-       :animation-duration        (ms duration-ms)
-       :animation-iteration-count :infinite
-       :animation-timing-function :linear}
-      ])
-      (range) (map (fn [x] [(Math/sin x) (Math/cos x) 0.3]) (range 0 6.2 (/ 1 16)))))
+  [
+   (gt/->CSSAtRule :keyframes
+     {:identifier :gradient-flow
+      :frames     [
+                   [:0%   {:background (linear-gradient "to top" (rgb 100 100 100) (rgb 255 255 255))}]
+                   [:50%  {:background (linear-gradient "to top" (rgb 255 255 255) (rgb 150 150 150))}]
+                   [:100% {:background (linear-gradient "to top" (rgb 100 100 100) (rgb 255 255 255))}]]})
+   ])
 
 
 (defn add-grid-rules [state]

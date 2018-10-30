@@ -62,7 +62,8 @@
         css/add-rules
         css/add-canvas-rules
         css/add-units-rules
-        css/add-grid-rules)))
+        css/add-grid-rules
+        (assoc :animation-rules (css/animation-rules 2000)))))
 
 
 (defn initialize-state
