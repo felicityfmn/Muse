@@ -52,7 +52,7 @@
 (defn sassify-rule
   "Recurses through the given vector's second element
    which represents a CSS rule, transforming any child rules
-   at the :& key into a form that  Garden will compile like SASS"
+   at the :& key into a form that Garden will compile like SASS"
   [[parent-selector {children :& :as rule}]]
   (if children
     [parent-selector (dissoc rule :&)
@@ -102,7 +102,6 @@
                                  :border-width  (px 1)
                                  :box-shadow    [[(px 0) (px 0) (px 10) (hsl 0 0 0)]]
                                  :text-align    "center"
-<<<<<<< HEAD
                                  :text-shadow   [[(px 1) (px 0.5) (px 0.5) (hsl 0 0 0)]]}
 
               "#text-demo"      {
