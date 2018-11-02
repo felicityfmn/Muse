@@ -1,11 +1,11 @@
-(ns ^:figwheel-hooks rs.ui
+(ns ^:figwheel-hooks muse.ui
   "
     This namespace starts the UI
   "
   (:require
     [reagent.core :as r]
-    [rs.actions :as actions]
-    [rs.views :as views]))
+    [muse.actions :as actions]
+    [muse.views :as views]))
 
 (defn ^:before-load before-start!
   [& q]

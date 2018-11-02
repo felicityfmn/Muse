@@ -1,4 +1,4 @@
-(ns rs.main
+(ns muse.main
   (:require
     [rs.ui :refer [start!]]))
 

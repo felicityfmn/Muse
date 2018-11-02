@@ -1,4 +1,4 @@
-(ns rs.views
+(ns muse.views
   "
    This namespace has functions
    that make view components for the UI
@@ -11,14 +11,14 @@
     [garden.types :as gt]
 
     [garden.compression :refer [compress-stylesheet]]
-    [rs.css :as rcss :refer [fr strs]]
+    [muse.css :as rcss :refer [fr strs]]
 
     [garden.selectors :as gs]
-    [rs.css :as rcss :refer [fr rad deg rotate3d perspective linear-gradient strs sassify-rule named?]]
+    [muse.css :as rcss :refer [fr rad deg rotate3d perspective linear-gradient strs sassify-rule named?]]
 
-    [rs.actions :as actions]
+    [muse.actions :as actions]
     [clojure.string :as string]
-    [rs.css :as css]))
+    ))
 
 
 (defn css-view

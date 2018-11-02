@@ -1,4 +1,4 @@
-(ns rs.actions
+(ns muse.actions
   "
     This namespace has functions
     that change the state of the application
