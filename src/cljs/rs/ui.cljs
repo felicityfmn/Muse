@@ -14,14 +14,6 @@
 (defn ^:after-load start! []
   (when (nil? @actions/app-state)
     (do
-      (reset! actions/app-state (actions/make-state))
-
-
-
-
-      ; comment this line to stop animation
-      ;(actions/animation!)
-
-      ))
+      (reset! actions/app-state (actions/make-state))))
   (r/render [views/root-view]
      (.getElementById js/document "app")))

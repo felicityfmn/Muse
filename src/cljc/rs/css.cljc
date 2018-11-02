@@ -16,20 +16,20 @@
 
 ; define some CSS units missing from garden.units:
 
-
-(defunit fr)
 (defunit rad)
+(defunit fr)
 (defunit deg)
 
 ; and some CSS functions for animations
 
-(defn rotate [& d]      (gt/->CSSFunction "rotate" d))
-(defn translate [& d]   (gt/->CSSFunction "translate" d))
-(defn scale [& d]       (gt/->CSSFunction "scale" d))
+(defn rotate [& d] (gt/->CSSFunction "rotate" d))
+(defn translate [& d] (gt/->CSSFunction "translate" d))
+(defn scale [& d] (gt/->CSSFunction "scale" d))
 (defn translate3d [& d] (gt/->CSSFunction "translate3d" d))
-(defn scale3d [& d]     (gt/->CSSFunction "scale3d" d))
-(defn rotate3d [& d]    (gt/->CSSFunction "rotate3d" d))
+(defn scale3d [& d] (gt/->CSSFunction "scale3d" d))
+(defn rotate3d [& d] (gt/->CSSFunction "rotate3d" d))
 (defn perspective [& d] (gt/->CSSFunction "perspective" d))
+(defn linear-gradient [& d] (gt/->CSSFunction "linear-gradient" d))
 
 
 (defn strs
@@ -39,7 +39,7 @@
   (I'm sure Garden's got a built-in way of doing this but I couldn't find it)"
   [lists]
   (apply str
-    (map (fn [x] (str "\"" (string/join " " x) "\"")) lists)))
+         (map (fn [x] (str "\"" (string/join " " x) "\"")) lists)))
 
 (defn named? [x]
   (or (keyword? x) (symbol? x)))
@@ -52,17 +52,17 @@
 (defn sassify-rule
   "Recurses through the given vector's second element
    which represents a CSS rule, transforming any child rules
-   at the :& key into a form that Garden will compile like SASS"
+   at the :& key into a form that  Garden will compile like SASS"
   [[parent-selector {children :& :as rule}]]
   (if children
     [parent-selector (dissoc rule :&)
-      (map (fn [[child-selector child-rule]]
-             (sassify-rule [(str (if (keyword? child-selector)
-                      (if (namespace child-selector) "&::" "&:")
-                      "&") (as-str child-selector))
-               child-rule]))
-        children)]
-     [parent-selector rule]))
+     (map (fn [[child-selector child-rule]]
+            (sassify-rule [(str (if (keyword? child-selector)
+                                  (if (namespace child-selector) "&::" "&:")
+                                  "&") (as-str child-selector))
+                           child-rule]))
+          children)]
+    [parent-selector rule]))
 
 
 
@@ -78,34 +78,39 @@
               "#canvas"
                                 {
                                  :border        [[(px 0) :solid (rgb 86 86 86)]]
-                                 :background    (hsla 210 70 85 1)
+                                 :background    (hsla 210 70 95 1)
                                  :border-radius (em 0)
                                  :width         (percent 90)
                                  :height        (px 500)
-                                 :display       "table"
+                                 :display       "table"}
 
-                                 }
+
               "#button-wrapper" {
                                  :display        "table-cell"
-                                 :vertical-align "middle"
-                                 }
+                                 :vertical-align "middle"}
+
               "#demo-button"    {
-                                 :background    (hsl 109 100 70)
+                                 :background    (hsl 30 90 55)
                                  :max-width     (px 100)
                                  :height        (px 50)
                                  :overflow      "hidden"
                                  :padding       (px 10)
-                                 :display       "flex"
+                                 :display       "table"
                                  :margin        "auto"
                                  :border-radius (em 1)
                                  :font-size     (pt 16)
                                  :border-width  (px 1)
                                  :box-shadow    [[(px 0) (px 0) (px 10) (hsl 0 0 0)]]
                                  :text-align    "center"
-                                 :text-shadow [[(px 1) (px 0.5) (px 0.5) (hsl 0 0 0)]]
-                                 }
+<<<<<<< HEAD
+                                 :text-shadow   [[(px 1) (px 0.5) (px 0.5) (hsl 0 0 0)]]}
 
-              })))
+              "#text-demo"      {
+                                 :display        "table-cell"
+                                 :vertical-align "middle"}})))
+
+
+
 
 
 
@@ -115,185 +120,75 @@
                  {
                   :.main
                                           {
-                                           :background  "linear-gradient( to bottom, rgba( 216, 215, 215, 0.3 ), white )"
+                                           ;:background  "linear-gradient( to bottom, rgba( 216, 215, 215, 0.3 ), white )"
                                            :text-shadow [[(px 0) (px 0) (px 3) (hsl 0 0 0)] [(px 1) (px 0) (px 1) (hsl 65 49 67)]]
                                            :color       (hsl 0 0 100)
                                            :width       (percent 100)
                                            :height      (percent 100)
                                            :display     :flex
-                                           :flex-flow   "column nowrap"
+                                           :flex-flow   "column nowrap"}
 
-                                           }
-                  :.demo-grid
+
+
+                  ".things"
                                           {
-                                           :padding       (em 2)
-                                           :border-radius (px 8)
-                                           :display       :grid
-                                           :background    (hsl 137 96 80)
+                                           :background            (linear-gradient "to bottom" (rgba 216 215 215 0.3) :white)
+                                           :display               :grid
+                                           :grid-area             :content
+                                           :grid-template-columns [[(percent 30) (percent 70)]]
+                                           :grid-column-gap       (em 1)
+                                           :grid-auto-rows        :auto
+                                           :grid-row-gap          (em 2.5)
+                                           :padding               (percent 4)}
 
-                                           }
+
+                  ".thing"                {:align-self :start :justify-self :stretch}
+                  ".input"                {:align-self :start}
+                  ".text-input"
+                                          {
+                                           :font-size  (em 1)
+                                           :color      (rgb 255 252 250)
+                                           :background (rgb 90 90 90)
+                                           :padding    (em 1)
+                                           :border     :none
+                                           :width      (percent 80)}
+
+
                   :body                   {
-                                           :background  "linear-gradient( to top, grey, white )"
-                                           :margin      (percent 1)
-                                           :font-family ["Gill Sans" "Helvetica" "Verdana" "Sans Serif"]
-                                           :font-size   (em 1)
-                                           :font-weight :normal
-                                           :cursor      :default
-                                           :zoom        0.8
-                                           }
+                                           :animation-name            :gradient-flow
+                                           :animation-duration        (ms 15000)
+                                           :animation-iteration-count :infinite
+                                           :animation-timing-function :linear
+                                           ;:background                (linear-gradient "to top" :grey :white)
+                                           :margin                    (percent 1)
+                                           :font-family               ["Gill Sans" "Helvetica" "Verdana" "Sans Serif"]
+                                           :font-size                 (em 1)
+                                           :font-weight               :normal
+                                           :cursor                    :default
+                                           :zoom                      0.8}
+
                   :.button                {
                                            :cursor      :pointer
                                            :width       (px 10)
                                            :height      (px 28)
-                                           :margin-left (percent 1)
+                                           :margin-left (percent 1)}
 
-                                           }
+
                   ".button-refresh:hover" {}
                   "#text-demo"            {
-                                           :color (hsl 20 30 10)
+                                           :color (hsl 0 0 100)}
 
-                                           }
+
                   :div.canvas-parameters  {
                                            :max-height (px 200)
-                                           :padding    (px 10)
-                                           }
+                                           :padding    (px 10)}
+
                   :div.button-parameters  {
                                            :height  (percent 50)
-                                           :padding (px 10)
-                                           }
-
-                  }
-                 )))
+                                           :padding (px 10)}})))
 
 
-(defn add-units-rules [state]
-  (assoc-in state [:css :units]
-    {:.unit    {
-                :justify-self    :start
-                :display         :flex
-                :justify-content :center
-                :align-items     :center
-                :min-width       (em 2)
-                :border-radius   (px 4)
-                :border          [[:solid (rgb 200 200 200) (px 1)]]
-                :background      (rgb 150 150 150)
-                :padding         (em 0.1)
-                }
-     :.em      {:background (hsl 150 50 50) :color (hsl 150 20 10)}
-     :.px      {:background (hsl 10 70 80) :color (hsl 15 20 10)}
-     :.percent {:background (hsl 50 70 80) :color (hsl 15 20 10)}
-     :.fr      {:background (hsl 200 70 80) :color (hsl 15 20 10)}}))
 
 
-(defn animation-rules [duration-ms]
-  (mapcat
-    (fn [i v]
-     [
-      (gt/->CSSAtRule :keyframes
-        {:identifier (str "rotating-thing-" i)
-         :frames     [
-                      [:0%   {:transform (apply rotate3d (conj v (rad 0))) :opacity 1}]
-                      [:50%  {:transform (apply rotate3d (conj v (rad 3.1415926))) :opacity 0.3}]
-                      [:100% {:transform (apply rotate3d (conj v (rad 6.266))) :opacity 1}]]})
-      (str ".rotating-" i)
-      {:animation-name            (str "rotating-thing-" i)
-       :animation-duration        (ms duration-ms)
-       :animation-iteration-count :infinite
-       :animation-timing-function :linear}
-      ])
-      (range) (map (fn [x] [(Math/sin x) (Math/cos x) 0.3]) (range 0 6.2 (/ 1 16)))))
-
-
-(defn add-grid-rules [state]
-  (assoc-in state [:css :demo]
-    {
-     :.demo-grid
-       {
-        :padding               (em 1)
-        :border-radius         (px 8)
-        :display               :grid
-        :background            (hsl 197 31 49)
-        :grid-template-columns [[(percent 20) (fr 1)]]
-        :grid-auto-rows        (em 1.3)
-        :grid-row-gap          (em 1)
-        :grid-column-gap       (em 1)
-        }}))
-
-
-(defn add-main-rules [state]
-  (assoc-in state [:css :main]
-    {
-     :body    {
-               :margin      0
-               :padding     0
-               :background  (rgb 50 50 50)
-               :font-family ["Gill Sans" "Helvetica" "Verdana" "Sans Serif"]
-               :font-size   (em 1)
-               :font-weight :normal
-               :cursor      :default
-               }
-     :.main
-              {
-               :background            (rgb 70 70 70)
-               :color                 (rgb 255 250 210)
-               :width                 (percent 100)
-               :height                (percent 100)
-               :display               :grid
-               :grid-template-columns [[(em 2) (fr 1) (em 2)]]
-               :grid-template-rows    :auto
-               :grid-column-gap       (em 1)
-               :grid-row-gap          (em 2)
-               :grid-template-areas   (strs '[[tl t tr]
-                                              [l content r]
-                                              [bl b br]])
-               }
-     ".things"
-       {
-        :display               'grid
-        :grid-area             :content
-        :grid-template-columns [[(percent 20) (percent 80)]]
-        :grid-column-gap       (em 1)
-        :grid-auto-rows        :auto
-        :grid-row-gap          (em 2.5)
-        :background            (rgb 70 70 70)
-        }
-     ".thing" {:align-self :start :justify-self :stretch}
-     ".input" {:align-self :start}
-     ".text-input"
-       {
-        :font-size  (em 1)
-        :color      (rgb 255 252 250)
-        :background (rgb 90 90 90)
-        :padding    (em 1)
-        :border     :none
-        }
-     :.list {
-               :display :flex
-               :flex-flow [:row :wrap]
-             }
-     "input[type=range]"
-     {
-      :background :none
-      :&
-        {
-         ::-moz-range-thumb
-         {
-           :background (rgb 100 100 100)
-           :&
-           {
-            :hover
-            {
-              :background (rgb 150 150 150)
-            }
-           }
-         }
-         ::-webkit-slider-thumb
-         {
-          :background :yellow
-         }
-        }
-      }
-     :.button {:cursor :pointer}
-     }))
 
 

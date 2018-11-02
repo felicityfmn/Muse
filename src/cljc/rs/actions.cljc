@@ -31,47 +31,71 @@
    (make-state
      {
 
-        ;These are the parameters of the canvas that the sliders manipulate: they take canvas rules, and pick out the parameters
-        :slider-parameters
-        [
-         {:unit px :min 0 :max 10 :step 1 :path [:canvas-rules "#canvas" :border 0 0]}
-         {:min 0 :max 360 :step 1 :path
-               [:canvas-rules "#canvas" :background :hue]}
-         {:unit em :min 0 :max 5 :step 0.2 :path
-                [:canvas-rules "#canvas" :border-radius]}
+      ;These are the parameters of the canvas that the sliders manipulate: they take canvas rules, and pick out the parameters
+      :slider-canvas-parameters
+      [
+       {:unit px :min 0 :max 10 :step 1 :path [:canvas-rules "#canvas" :border 0 0]}
+       {:min 0 :max 360 :step 1 :path
+             [:canvas-rules "#canvas" :background :hue]}
+       {:unit em :min 0 :max 5 :step 0.2 :path
+              [:canvas-rules "#canvas" :border-radius]}
+       ]
+      :slider-button-parameters
+      [
+       {:min 0 :max 360 :step 1 :path
+             [:canvas-rules "#demo-button" :background :hue]}
+       {:unit px :min 0 :max 50 :step 0.5 :path
+              [:canvas-rules "#demo-button" :border-radius]}
+       {:unit pt :min 11 :max 20 :step 0.5 :path
+              [:canvas-rules "#demo-button" :font-size]}
+       ]
 
-         ;{:unit px :min 0 :max 50 :step 0.5 :path
-         ;       [:canvas-rules "#demo-button" :box-shadow ::blur]}
-         ]
-        :slider-button-parameters
-        [
-         {:min 0 :max 360 :step 1 :path
-               [:canvas-rules "#demo-button" :background :hue]}
-         {:unit px :min 0 :max 50 :step 0.5 :path
-                [:canvas-rules "#demo-button" :border-radius]}
-         {:unit pt :min 11 :max 20 :step 0.5 :path
-                [:canvas-rules "#demo-button" :font-size]}
-         ]
-
-        :input-text
-          {:text "Button text"}
+      :input-text
+      {:text "Button text"}
 
       }))
-    ([state]
-      (-> state
-        css/add-rules
-        css/add-canvas-rules
-        css/add-units-rules
-        css/add-grid-rules)))
+  ([state]
+   (-> state
+       css/add-rules
+       css/add-canvas-rules
+
+       )))
 
 
 (defn initialize-state
   ([state message]
    (make-state)))
+(defn colour-coupling
+  "makes the background colour of the button change complimentarily to the canvas background colour"
+  [hue lightness]
+  [(mod (+ 120 hue) 360) (mod (- 60 lightness) 100)]
+  )
+(defn update-colours
+  [
+   {
+    {
+     {{h :hue l :lightness} :background} "#canvas"
+     button                              "#demo-button"
+     }  :canvas-rules
+    :as state
+    }
+   ]
+  (update-in state [:canvas-rules "#demo-button" :background]
+             (fn [colour]
+               (let [[nh nl] (colour-coupling h l)]
+                 (assoc colour :hue nh :lightness nl)))))
+
 
 (defn change-thing
   ([state {value :value path :path :as message}]
-   (assoc-in state path value)))
+   (if (= path [:canvas-rules "#canvas" :background :hue])
+     (update-colours
+       (assoc-in state path value)
+       )
+     (assoc-in state path value)
+     )
+    )
+  )
 
 (defn choose-function
   "Work out what function to use for updating
@@ -92,6 +116,6 @@
   ([message]
    (handle-message! message (choose-function message)))
   ([message a-function]
-    (swap! app-state
-      (fn [current-state] (a-function current-state message)))))
+   (swap! app-state
+          (fn [current-state] (a-function current-state message)))))
 
