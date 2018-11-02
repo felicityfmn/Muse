@@ -131,7 +131,7 @@
 
                   ".things"
                                           {
-                                           :background            (linear-gradient "to bottom" (rgba 216 215 215 0.3) :white)
+                                           :background            (linear-gradient "to bottom" (rgba 216 215 215 0.1) :white)
                                            :display               :grid
                                            :grid-area             :content
                                            :grid-template-columns [[(percent 30) (percent 70)]]

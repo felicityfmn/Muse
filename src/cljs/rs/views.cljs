@@ -179,6 +179,7 @@
 
      {t :text}                :input-text
      :as                      state}]
+   (.log js/console "hi there")
    [:div.root
     [css-view :main {:vendors ["webkit" "moz"] :auto-prefix #{:column-width :user-select}} main-rules]
     [:div.main

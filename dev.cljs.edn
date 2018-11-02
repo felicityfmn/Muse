@@ -12,5 +12,4 @@
  :output-dir           "resources/public/js"
  :output-to            "resources/public/js/main.js"
  :optimizations        :none
- :parallel-build       true
-}
+ :parallel-build       true}
