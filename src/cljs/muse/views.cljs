@@ -6,7 +6,7 @@
   (:require
     [oops.core :refer [oget]]
     [garden.core :as gc :refer [css]]
-    [garden.color :as color :refer [hsl rgb rgba hex->rgb as-hex]]
+    [garden.color :as color :refer [hsl hsla rgb rgba hex->rgb as-hex]]
     [garden.units :as u :refer [px pt em ms percent defunit]]
     [garden.types :as gt]
 
@@ -14,7 +14,7 @@
     [muse.css :as rcss :refer [fr strs]]
 
     [garden.selectors :as gs]
-    [muse.css :as rcss :refer [fr rad deg rotate3d perspective linear-gradient strs sassify-rule named?]]
+    [muse.css :as rcss :refer [fr rad deg  linear-gradient strs sassify-rule named?]]
 
     [muse.actions :as actions]
     [clojure.string :as string]
@@ -48,17 +48,44 @@
   (map (fn [n] (hsl n 100 50))
        (range 0 361 3.6)))
 
+;(defn animation-rules []
+;  [
+;   (gt/->CSSAtRule :keyframes
+;                   {:identifier :gradient-flow
+;                    :frames
+;
+;                                (map (fn [n c] [ n {:background (linear-gradient "to bottom" (hsl 180 100 50) c)}])
+;                                     (frame-inc)
+;                                     (colours))})])
+(defn translate [& d]   (gt/->CSSFunction "translate" d))
 (defn animation-rules []
   [
    (gt/->CSSAtRule :keyframes
-                   {:identifier :gradient-flow
+                   {:identifier :rotation
                     :frames
+                                [
+                                 [:0% {:transform (translate (percent 7) (percent 5))}]
+                                 [:25% {:transform (translate (percent 5) (percent -7))}]
+                                 [:50% {:transform (translate (percent -7) (percent -5))}]
+                                 [:75% {:transform (translate (percent -5) (percent 7))}]
+                                 [:100% {:transform (translate (percent 7) (percent 5))}]
+                                 ]
 
-                                (map (fn [n c] [ n {:background (linear-gradient "to bottom" (hsl 180 100 50) c)}])
-                                     (frame-inc)
-                                     (colours))})])
+                    })
+   "#card1"           {
+                       :background (hsla 168 100 80 0.5 )
+                       :height (px 200)
+                       :width (px 200)
+                       :display "table"
+                       :margin "auto"
+                       :animation-name :rotation
+                       :animation-duration        (ms 10000)
+                       :animation-iteration-count :infinite
+                       :animation-timing-function :linear
 
 
+                       }
+   ])
 
 
 
@@ -183,7 +210,7 @@
    [:div.root
     [css-view :main {:vendors ["webkit" "moz"] :auto-prefix #{:column-width :user-select}} main-rules]
     [:div.main
-     [css-view :animation {} (animation-rules)]
+    
      [:div.button {:title "reinitialize everything!" :on-click (fn [e] (actions/handle-message! {:clicked :reinitialize}))} "🔄"]
      [:div.things
       [:div.canvas-parameters "Canvas settings"
@@ -192,7 +219,12 @@
 
       [:div {:id "canvas"}
        [:div {:id "button-wrapper"}
-        [:div {:id "demo-button"} [text-demo {:id "text-demo" :path [:input-text :text] :value t}]]]]
+        [:div {:id "card1"}]
+        [css-view :animation {} (animation-rules)]
+        ;[css-view :animation {} (card1-animation)]
+        ;[:div {:id "demo-button"} [text-demo {:id "text-demo" :path [:input-text :text] :value t}]]
+        ]
+       ]
       [:div.button-parameters "Button settings"
        [sliders-view (map (fn [{path :path :as parameter}] (assoc parameter :value (get-in state path))) slider-button-parameters)]]
 

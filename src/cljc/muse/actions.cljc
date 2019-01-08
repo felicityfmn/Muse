@@ -13,7 +13,7 @@
     [garden.core :as gc]
     #?(:cljs [reagent.ratom :as ra])
     #?(:cljs [oops.core :refer [oget ocall]])
-    [rs.css :as css :refer [fr strs]]
+    [muse.css :as css :refer [fr strs]]
     [garden.color :as color :refer [hsl rgb rgba hex->rgb as-hex]]
     [garden.units :as u :refer [percent px pt em ms]]
     [clojure.string :as string]))
@@ -35,20 +35,20 @@
       :slider-canvas-parameters
       [
        {:unit px :min 0 :max 10 :step 1 :path [:canvas-rules "#canvas" :border 0 0]}
-       {:min 0 :max 360 :step 1 :path
+       {:min 180 :max 190 :step 1 :path
              [:canvas-rules "#canvas" :background :hue]}
        {:unit em :min 0 :max 5 :step 0.2 :path
               [:canvas-rules "#canvas" :border-radius]}
        ]
-      :slider-button-parameters
-      [
-       {:min 0 :max 360 :step 1 :path
-             [:canvas-rules "#demo-button" :background :hue]}
-       {:unit px :min 0 :max 50 :step 0.5 :path
-              [:canvas-rules "#demo-button" :border-radius]}
-       {:unit pt :min 11 :max 20 :step 0.5 :path
-              [:canvas-rules "#demo-button" :font-size]}
-       ]
+      ;:slider-button-parameters
+      ;[
+      ; {:min 0 :max 360 :step 1 :path
+      ;       [:canvas-rules "#demo-button" :background :hue]}
+      ; {:unit px :min 56 :max 64 :step 0.5 :path
+      ;        [:canvas-rules "#demo-button" :border-radius]}
+      ; {:unit pt :min 11 :max 20 :step 0.5 :path
+      ;        [:canvas-rules "#demo-button" :font-size]}
+      ; ]
 
       :input-text
       {:text "Button text"}

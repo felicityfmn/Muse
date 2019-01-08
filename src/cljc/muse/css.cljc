@@ -1,4 +1,4 @@
-(ns rs.css
+(ns muse.css
   "CSS things - extra functions and definitions for CSS
   and some CSS rules"
   (:require
@@ -20,15 +20,6 @@
 (defunit fr)
 (defunit deg)
 
-; and some CSS functions for animations
-
-(defn rotate [& d] (gt/->CSSFunction "rotate" d))
-(defn translate [& d] (gt/->CSSFunction "translate" d))
-(defn scale [& d] (gt/->CSSFunction "scale" d))
-(defn translate3d [& d] (gt/->CSSFunction "translate3d" d))
-(defn scale3d [& d] (gt/->CSSFunction "scale3d" d))
-(defn rotate3d [& d] (gt/->CSSFunction "rotate3d" d))
-(defn perspective [& d] (gt/->CSSFunction "perspective" d))
 (defn linear-gradient [& d] (gt/->CSSFunction "linear-gradient" d))
 
 
@@ -78,7 +69,7 @@
               "#canvas"
                                 {
                                  :border        [[(px 0) :solid (rgb 86 86 86)]]
-                                 :background    (hsla 210 70 95 1)
+                                 :background    (hsla 183 62 34 1)
                                  :border-radius (em 0)
                                  :width         (percent 90)
                                  :height        (px 500)
@@ -89,20 +80,20 @@
                                  :display        "table-cell"
                                  :vertical-align "middle"}
 
-              "#demo-button"    {
-                                 :background    (hsl 30 90 55)
-                                 :max-width     (px 100)
-                                 :height        (px 50)
-                                 :overflow      "hidden"
-                                 :padding       (px 10)
-                                 :display       "table"
-                                 :margin        "auto"
-                                 :border-radius (em 1)
-                                 :font-size     (pt 16)
-                                 :border-width  (px 1)
-                                 :box-shadow    [[(px 0) (px 0) (px 10) (hsl 0 0 0)]]
-                                 :text-align    "center"
-                                 :text-shadow   [[(px 1) (px 0.5) (px 0.5) (hsl 0 0 0)]]}
+              ;"#demo-button"    {
+              ;                   :background    (hsl 56 96 56)
+              ;                   :max-width     (px 100)
+              ;                   :height        (px 50)
+              ;                   :overflow      "hidden"
+              ;                   :padding       (px 10)
+              ;                   :display       "table"
+              ;                   :margin        "auto"
+              ;                   :border-radius (em 1)
+              ;                   :font-size     (pt 16)
+              ;                   :border-width  (px 1)
+              ;                   :box-shadow    [[(px 0) (px 0) (px 10) (hsl 0 0 0)]]
+              ;                   :text-align    "center"
+              ;                   :text-shadow   [[(px 1) (px 0.5) (px 0.5) (hsl 0 0 0)]]}
 
               "#text-demo"      {
                                  :display        "table-cell"
@@ -182,12 +173,8 @@
                                            :max-height (px 200)
                                            :padding    (px 10)}
 
-                  :div.button-parameters  {
-                                           :height  (percent 50)
-                                           :padding (px 10)}})))
+                  ;:div.button-parameters  {
+                  ;                         :height  (percent 50)
+                  ;                         :padding (px 10)}})))  }
 
-
-
-
-
-
+                  })))
