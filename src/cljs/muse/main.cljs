@@ -1,6 +1,6 @@
 (ns muse.main
   (:require
-    [rs.ui :refer [start!]]))
+    [muse.ui :refer [start!]]))
 
 (println "starting...")
 (start!)

@@ -1,4 +1,4 @@
-(ns muse.css
+(ns rs.css
   "CSS things - extra functions and definitions for CSS
   and some CSS rules"
   (:require
